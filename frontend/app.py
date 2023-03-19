@@ -12,7 +12,7 @@ from datetime import datetime
 
 # server = Flask(__name__)
 app = dash.Dash(__name__, 
-                # external_stylesheets=[dbc.themes.BOOTSTRAP],
+                external_stylesheets=[dbc.themes.MORPH],
                 # use_pages = True,
                 # server = server,
                 meta_tags=[{'name': 'viewport',
@@ -20,8 +20,8 @@ app = dash.Dash(__name__,
                 )
 def build_sidebar_add_routine():
     '''
-    # routine drop down
-	Postal-code input
+    routine drop down
+	Postal-code input -> to do: check format is correct
 	H4: Running time
 	Time input 
 	Which-day-of-week select
@@ -31,19 +31,53 @@ def build_sidebar_add_routine():
     sidebar_add_routine = html.Div(
         id = "sidebar_add_routine",
         children = [
-            dcc.Dropdown(id = "routine-dropdown",
-                        options = [
-                            {'label':'routine 1', 'value':"routine_1"},
-                            {'label':'routine 2', 'value':'routine_2'},
-                        ],
-                        value = 'routine_1'
-                        ),
+            html.H4("Set-up your running routine!"),
             html.Br(),
-            html.H4("let's start to write something exciting!")
+            dbc.Row([
+                dbc.Col([
+                    # postal-code input
+                    dbc.FormFloating(
+                        id = "postal-code-input",
+                        children = [
+                            dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
+                            dbc.Label("postal code"),
+                            ]
+                        )   
+                ]),
+                dbc.Col([
+                    # routine drop-down
+                    dbc.DropdownMenu(
+                        id = "routine-dropdown",
+                        label = "routine",
+                        children = [
+                            dbc.DropdownMenuItem("Select a routine", header = True),
+                            dbc.DropdownMenuItem("Routine 1"),
+                            dbc.DropdownMenuItem("Routine 2")
+                            ],
+                        )
+                ])
+                
+            ]),
+            
+            html.Br(),
+            html.Br(),
+            html.Span("Running Time")
 
-        ]
+        ],
+        style=SIDEBAR_STYLE
     )
     return sidebar_add_routine
+
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "25rem", # rem is "root-em", indicates relative size to the scale of root element
+    "padding": "2rem",
+    "background-color": "#f8f9fa",
+    # "color" : "#4A6FA5"
+}
 
 def build_sidebar_run_model():
     '''
@@ -57,9 +91,15 @@ def build_sidebar_run_model():
 
     '''
 def build_map():
-    # https://medium.com/plotly/5-awesome-tools-to-power-your-geospatial-dash-app-c71ae536750d
+    map = html.Div(
+        id = "map-div",
+        children = [
+            html.H4("Map should appear on this side.")
+        ],
+        style = {"left":0}         
+    )
     
-    return html.H1("Map should appear on this side.")
+    return map
 
 #### Layout ####
 app.layout = dbc.Row([
@@ -71,14 +111,13 @@ app.layout = dbc.Row([
     dbc.Col(
         children = [
             build_map()
-        ],
-        width = 6
+        ]
     ),
     dcc.Interval(
             id="interval-component",
             interval=2 * 1000,  # in milliseconds, 2 sec
             n_intervals=50,  # number of times the interval has passed, start at batch 50.
-            disabled=True, # counter will no longer update
+            disabled=True, # created for backend model update, now switched off
         )
     ]
 )
