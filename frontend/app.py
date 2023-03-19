@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 
+import os
+import pathlib
+
 # server = Flask(__name__)
 app = dash.Dash(__name__, 
                 external_stylesheets=[dbc.themes.MORPH],
@@ -18,14 +21,23 @@ app = dash.Dash(__name__,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}],
                 )
+# setting up dataframe
+APP_PATH = str(pathlib.Path(__file__).parent.resolve())
+df_path = os.path.join(APP_PATH, os.path.join("../outputs", "data.csv"))
+
+def update_df():
+    new_df = pd.read_csv(df_path)
+    return new_df
+df = update_df()
+
 def build_sidebar_add_routine():
     '''
     routine drop down
 	Postal-code input -> to do: check format is correct
 	H4: Running time
 	Time input -> to do: set step to 5-min
-	Which-day-of-week select
-	Save button
+	Which-day-of-week select 
+	Save button -> to do: how to set horizontal align to center (should be in style?)
 
     '''
     sidebar_add_routine = html.Div(
@@ -56,11 +68,11 @@ def build_sidebar_add_routine():
                             ],
                         )
                 ])
-                
             ]),
             
             html.Br(),
             html.Br(),
+            # running time input
             html.H5("Running Time"),
             dbc.Row([
                 dbc.Col([
@@ -81,9 +93,31 @@ def build_sidebar_add_routine():
                     ])
                     
                 )
-            ])
-            
+            ]),
+            html.Br(),
 
+            # which-day-of-the-week button group
+            html.Div([
+                dbc.Label("which days of the week?"),
+                dbc.ButtonGroup([
+                    dbc.Button("M"),
+                    dbc.Button("T"),
+                    dbc.Button("W"),
+                    dbc.Button("T"),
+                    dbc.Button("F"),
+                    dbc.Button("S"),
+                    dbc.Button("S")
+                ],
+                id = "day-of-week-button",
+                size = "sm")
+            ]),
+            html.Br(),
+            html.Br(),
+
+            # save button
+            dbc.Button("save", size = "md", style = {"left":"7rem"})
+            
+            
         ],
         style=SIDEBAR_STYLE
     )
@@ -101,6 +135,10 @@ SIDEBAR_STYLE = {
 }
 
 def build_sidebar_run_model():
+    sidebar_run_model = html.Div([
+        dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+    ],
+    style = SIDEBAR_STYLE)
     '''
     Routine dropdown
 	Row
@@ -111,6 +149,7 @@ def build_sidebar_run_model():
 	Span: (text) summary, tips etc 
 
     '''
+    return sidebar_run_model
 def build_map():
     map = html.Div(
         id = "map-div",
@@ -126,7 +165,7 @@ def build_map():
 app.layout = dbc.Row([
     dbc.Col(
         children = [
-            build_sidebar_add_routine()
+            build_sidebar_run_model()
         ]
     ),
     dbc.Col(
