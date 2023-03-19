@@ -2,6 +2,7 @@ import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -21,6 +22,8 @@ app = dash.Dash(__name__,
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}],
                 )
+
+load_figure_template('MORPH')
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 df_path = os.path.join(APP_PATH, os.path.join("../outputs", "data.csv"))
@@ -41,7 +44,7 @@ def build_sidebar_add_routine():
 
     '''
     sidebar_add_routine = html.Div(
-        id = "sidebar_add_routine",
+        id = "sidebar-add-routine",
         children = [
             html.H4("Set-up your running routine!"),
             html.Br(),
@@ -135,8 +138,38 @@ SIDEBAR_STYLE = {
 }
 
 def build_sidebar_run_model():
-    sidebar_run_model = html.Div([
-        dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+    sidebar_run_model = html.Div(
+        id = "sidebar-run-model",
+        children = [
+            html.H4("Choose running routine and get prediction!"),
+            # drop-down to select routine
+            dbc.DropdownMenu(
+                        id = "routine-dropdown-2",
+                        label = "routine",
+                        children = [
+                            dbc.DropdownMenuItem("Select a routine", header = True),
+                            dbc.DropdownMenuItem("Routine 1"),
+                            dbc.DropdownMenuItem("Routine 2")
+                            ],
+                        ),
+            html.Br(),
+            dbc.Row([
+                dbc.Col([
+                    #html.Img(id = "weather-icon", src = app.get_asset_url('rainy.png'), style = {'display':'inline', 'height':'10%'})
+                ]),
+                dbc.Col([
+                    
+
+                ]),
+            # precipitation bar plot
+            dcc.Graph(id = 'precipitation-bar',
+                    figure = plot_precipitation(),
+                    config={'displayModeBar': False})
+            ])
+            
+            
+
+            # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
     ],
     style = SIDEBAR_STYLE)
     '''
@@ -150,6 +183,16 @@ def build_sidebar_run_model():
 
     '''
     return sidebar_run_model
+
+def plot_precipitation():
+    precipitation_bar = px.bar(df, x = 'time', y = 'precipitation', color = 'probability',
+                        color_continuous_scale="blues",
+                        labels={'time':'minutes from now', 'precipitation':'precipitation in mm'},
+                        height = 300,
+                        title = "precipitation in the next 30 minutes")
+    precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
+    return precipitation_bar
+
 def build_map():
     map = html.Div(
         id = "map-div",
