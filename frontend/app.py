@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from datetime import datetime
 
 import os
@@ -138,6 +139,15 @@ SIDEBAR_STYLE = {
 }
 
 def build_sidebar_run_model():
+    '''
+    Routine dropdown 
+    # Img weather icon
+	Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
+	Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
+	Suggestion-bar -> to-do: adjust spacing in between
+	Span: (text) summary, tips etc 
+
+    '''
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
         children = [
@@ -153,45 +163,54 @@ def build_sidebar_run_model():
                             ],
                         ),
             html.Br(),
-            dbc.Row([
-                dbc.Col([
-                    #html.Img(id = "weather-icon", src = app.get_asset_url('rainy.png'), style = {'display':'inline', 'height':'10%'})
-                ]),
-                dbc.Col([
-                    
-
-                ]),
+            
             # precipitation bar plot
             dcc.Graph(id = 'precipitation-bar',
                     figure = plot_precipitation(),
-                    config={'displayModeBar': False})
+                    config={'displayModeBar': False}),
+            html.Br(),
+
+            # wetness plot
+            dcc.Graph(id = 'wetness-plot',
+                    figure = plot_wetness(),
+                    config = {'displayModeBar':False}),
+            html.Br(),
+            
+            html.Img(id = "weather-icon", src = app.get_asset_url('rainy.png'), style = {'display':'inline', 'height':'10%'}),
+            # suggestion bar
+            dbc.Badge("Caution, advised not to run!", color = "danger"),
+            # tips card 
+            dbc.Card([
             ])
             
-            
 
-            # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True)
+            # dbc.Table.from_dataframe(df)
+            # 
+            #dbc.Table.from_dataframe(df.loc[:,["time","wetness"]], np.repeat(1, df.shape[0])], axis = 1), striped=True, bordered=True, hover=True)
     ],
     style = SIDEBAR_STYLE)
-    '''
-    Routine dropdown
-	Row
-		Img weather icon
-		Rain bar graph
-	Wetness indicator
-	Suggestion-bar
-	Span: (text) summary, tips etc 
-
-    '''
     return sidebar_run_model
 
 def plot_precipitation():
     precipitation_bar = px.bar(df, x = 'time', y = 'precipitation', color = 'probability',
                         color_continuous_scale="blues",
                         labels={'time':'minutes from now', 'precipitation':'precipitation in mm'},
-                        height = 300,
+                        height = 230,
                         title = "precipitation in the next 30 minutes")
-    precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
+    # precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
+    precipitation_bar.update_layout(margin = dict(t=25, b=0))
     return precipitation_bar
+
+def plot_wetness():
+    df["dummy_col"] = np.repeat(1, df.shape[0])
+    df["wetness"] = df["wetness"].astype(str)
+    wetness_plot = px.bar(df, x = 'time', y = 'dummy_col', color ='wetness',
+                        labels = {'time':'minutes from now'},
+                        height = 150,
+                        title = "wetness level in the next 30 minutes",
+                        color_discrete_sequence=['#43CC29','#FFC008','#E52527'])
+    wetness_plot.update_layout(margin = dict(t=25, b=0))
+    return wetness_plot
 
 def build_map():
     map = html.Div(
