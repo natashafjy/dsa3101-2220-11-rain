@@ -23,7 +23,7 @@ def build_sidebar_add_routine():
     routine drop down
 	Postal-code input -> to do: check format is correct
 	H4: Running time
-	Time input 
+	Time input -> to do: set step to 5-min
 	Which-day-of-week select
 	Save button
 
@@ -61,7 +61,28 @@ def build_sidebar_add_routine():
             
             html.Br(),
             html.Br(),
-            html.Span("Running Time")
+            html.H5("Running Time"),
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        dbc.Label("start"),
+                        dbc.Input(
+                            id = "start-time-input",
+                            type = "Time")
+                        # ,dbc.FormText("starting time")
+                    ])
+                ]),
+                dbc.Col(
+                    html.Div([
+                        dbc.Label("End"),
+                        dbc.Input(
+                            id = "end-time-input",
+                            type = "Time")
+                    ])
+                    
+                )
+            ])
+            
 
         ],
         style=SIDEBAR_STYLE
