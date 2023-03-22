@@ -2,18 +2,20 @@ import dash
 from dash import html
 from dash import dcc
 import googlemaps
-import googlemaps.exceptions
-import os
-from dotenv import load_dotenv, find_dotenv
 from datetime import datetime
 
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
     dcc.Input(
-        id='address-input',
+        id='start-address-input',
         type='text',
-        placeholder='Enter an address'
+        placeholder='Enter starting address'
+    ),
+    dcc.Input(
+        id='end-address-input',
+        type='text',
+        placeholder='Enter ending address'
     ),
     html.Button(
         'Submit',
@@ -24,33 +26,45 @@ app.layout = html.Div([
         id='map-container',
         children=[],
         style={
-            'width': '100%',
-            'height': '800px'
+            'width': '50%',
+            'height': '800px',
+            'float': 'left'
         }
     )
 ])
 
+def calculate_route(start_address, end_address):
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    directions_result = gmaps.directions(
+        start_address,
+        end_address,
+        mode='walking',
+        optimize_waypoints=True,
+        departure_time=datetime.now()
+    )
+    route = directions_result[0]['legs'][0]
+    return route
 
 @app.callback(
     dash.dependencies.Output('map-container', 'children'),
     [dash.dependencies.Input('submit-button', 'n_clicks')],
-    [dash.dependencies.State('address-input', 'value')]
+    [dash.dependencies.State('start-address-input', 'value'),
+     dash.dependencies.State('end-address-input', 'value')]
 )
-def update_map(n_clicks, address):
-    if not address:
+def update_map(n_clicks, start_address, end_address):
+    if not start_address or not end_address:
         return []
 
-    load_dotenv(find_dotenv())
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    geocode_result = gmaps.geocode(address)
-    lat = geocode_result[0]['geometry']['location']['lat']
-    lng = geocode_result[0]['geometry']['location']['lng']
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+
     return [
         html.Iframe(
             id='map',
-            srcDoc=f'<iframe src="https://www.google.com/maps/embed/v1/place?q={address}&key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&zoom=15 width="100%" height="100%"></iframe>',
+            srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
             style={'height': '100%', 'width': '100%'}
         )
+
+
     ]
 
 if __name__ == '__main__':
