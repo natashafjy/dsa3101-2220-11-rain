@@ -28,6 +28,8 @@ def get_stations_lat_long():
 
 get_stations_lat_long()
 
+# print(len(latitudes)) in total: 66 measurement stations
+
 lat_by7 = np.repeat(latitudes, 7)
 long_by7 = np.repeat(longitudes, 7)
 
@@ -41,10 +43,13 @@ wet = np.random.randint(low=0, high=3, size=(len(prob),))
 
 simulated_data = {'latitude': lat_by7, 'longtitude': long_by7, 'time': time, 'precipitation': precip, 'probability': prob, 'wetness': wet}
 
+station_index = np.arange(start = 1, stop = 67, step = 1)
+station = np.repeat(station_index, 7)
+
 # Sanity check
 # print(len(response.json()['metadata']['stations']) == len(latitudes))
 # print(len(time)==len(lat_by7))
 
 df = pd.DataFrame.from_dict(simulated_data)
-
-df.to_csv('outputs/data.csv')
+df['station'] = station # appending a station index col
+df.to_csv('data.csv')
