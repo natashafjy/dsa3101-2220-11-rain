@@ -250,15 +250,21 @@ def build_island_map():
     the island-wide dynamic map showing rainfall over Singapore for 30-min window,
     returning px graph object
     '''
-    map = px.scatter_geo(data_frame = df, 
-                      geojson = sg_basemap,
+    px.set_mapbox_access_token(open(".mapbox_token").read())
+    map = px.scatter_mapbox(data_frame = df, 
+                      #geojson = gj,
                      lat = "latitude",
                      lon = "longtitude",
                      color = "probability",
                      size = "precipitation",
-                     animation_frame = "time"
+                     animation_frame = "time",
+                     color_continuous_scale="blues",
+                     zoom = 10.5,
+                     height = 800
+                     # hover_name = ,
                      )
-    map.update_geos(fitbounds="locations")       
+
+    # map.update_geos(fitbounds="locations")       
     return map
 #### Layout ####
 app.layout = dbc.Row([
