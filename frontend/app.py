@@ -13,6 +13,7 @@ import numpy as np
 from datetime import datetime
 
 import googlemaps
+import geojson
 
 import os
 import pathlib
@@ -27,14 +28,21 @@ app = dash.Dash(__name__,
                 )
 
 load_figure_template('MORPH')
+
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 df_path = os.path.join(APP_PATH, os.path.join("../outputs", "data.csv"))
-
 def update_df():
     new_df = pd.read_csv(df_path)
     return new_df
 df = update_df()
+
+# setting up Singapore basemap
+map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
+with open(map_path) as f:
+    sg_basemap = geojson.load(f)
+
+
 
 def build_sidebar_add_routine():
     '''
@@ -134,6 +142,7 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
+    "right" :0,
     "width": "25rem", # rem is "root-em", indicates relative size to the scale of root element
     "padding": "2rem",
     "background-color": "#f8f9fa",
@@ -168,13 +177,13 @@ def build_sidebar_run_model():
             
             # precipitation bar plot
             dcc.Graph(id = 'precipitation-bar',
-                    figure = plot_precipitation(),
+                    figure = plot_precipitation(station_id  = 1),
                     config={'displayModeBar': False}),
             html.Br(),
 
             # wetness plot
             dcc.Graph(id = 'wetness-plot',
-                    figure = plot_wetness(),
+                    figure = plot_wetness(station_id= 1),
                     config = {'displayModeBar':False}),
             html.Br(),
             
@@ -189,12 +198,17 @@ def build_sidebar_run_model():
             # dbc.Table.from_dataframe(df)
             # 
             #dbc.Table.from_dataframe(df.loc[:,["time","wetness"]], np.repeat(1, df.shape[0])], axis = 1), striped=True, bordered=True, hover=True)
-    ],
-    style = SIDEBAR_STYLE)
+    ]
+    ,style = SIDEBAR_STYLE
+    )
     return sidebar_run_model
 
-def plot_precipitation():
-    precipitation_bar = px.bar(df, x = 'time', y = 'precipitation', color = 'probability',
+def plot_precipitation(station_id):
+    '''
+    station_id: int, the id of station for which the plot will be shown
+    '''
+
+    precipitation_bar = px.bar(df[df['station']==station_id], x = 'time', y = 'precipitation', color = 'probability',
                         color_continuous_scale="blues",
                         labels={'time':'minutes from now', 'precipitation':'precipitation in mm'},
                         height = 230,
@@ -203,10 +217,13 @@ def plot_precipitation():
     precipitation_bar.update_layout(margin = dict(t=25, b=0))
     return precipitation_bar
 
-def plot_wetness():
+def plot_wetness(station_id):
+    '''
+    station_id: int, the id of station for which the plot will be shown
+    '''
     df["dummy_col"] = np.repeat(1, df.shape[0])
     df["wetness"] = df["wetness"].astype(str)
-    wetness_plot = px.bar(df, x = 'time', y = 'dummy_col', color ='wetness',
+    wetness_plot = px.bar(df[df['station']==station_id], x = 'time', y = 'dummy_col', color ='wetness',
                         labels = {'time':'minutes from now'},
                         height = 150,
                         title = "wetness level in the next 30 minutes",
@@ -214,7 +231,10 @@ def plot_wetness():
     wetness_plot.update_layout(margin = dict(t=25, b=0))
     return wetness_plot
 
-def build_map():
+def build_local_map():
+    '''
+    the map in tab 1 showing rainfall near the specific route
+    '''
     map = html.Div(
         id = "map-div",
         children = [
@@ -225,17 +245,44 @@ def build_map():
     
     return map
 
+def build_island_map():
+    '''
+    the island-wide dynamic map showing rainfall over Singapore for 30-min window,
+    returning px graph object
+    '''
+    map = px.scatter_geo(data_frame = df, 
+                      geojson = sg_basemap,
+                     lat = "latitude",
+                     lon = "longtitude",
+                     color = "probability",
+                     size = "precipitation",
+                     animation_frame = "time"
+                     )
+    map.update_geos(fitbounds="locations")       
+    return map
 #### Layout ####
 app.layout = dbc.Row([
     dbc.Col(
         children = [
             build_sidebar_run_model()
-        ]
+        ],
+        width = 3
     ),
     dbc.Col(
         children = [
-            build_map()
-        ]
+            dbc.Tabs(
+                    [
+                        dbc.Tab(label="route map", tab_id="map-tab-1"),
+                        dbc.Tab(label="island dynamic map", tab_id="map-tab-2"),
+                    ],
+                id="map-tabs",
+                active_tab="map-tab-1",
+                ),
+            html.Div(id="map-content"),
+        ],
+
+        width = 9,
+        style = {'margin-left':'25rem'}
     ),
     dcc.Interval(
             id="interval-component",
@@ -256,7 +303,17 @@ app.layout = dbc.Row([
 def update_output_div(input_value):
     return f'Output: {input_value}'
 '''
-
+@app.callback(
+    Output("map-content", "children"), [Input("map-tabs", "active_tab")]
+)
+def tab_content(active_tab):
+    if active_tab == "map-tab-1": # at map-tab-1
+        return "This is tab {}".format(active_tab)
+    if active_tab == "map-tab-2":
+        return html.Div(id = "map-tab-2-div",
+                        children = [
+                            dcc.Graph(id="island-map", figure=build_island_map())
+                        ])
 
 
 
