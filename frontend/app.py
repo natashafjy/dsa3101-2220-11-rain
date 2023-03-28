@@ -150,6 +150,8 @@ SIDEBAR_STYLE = {
 }
 
 def build_sidebar_run_model():
+
+
     '''
     Routine dropdown 
     # Img weather icon
@@ -203,6 +205,44 @@ def build_sidebar_run_model():
     )
     return sidebar_run_model
 
+def build_main_add_routine():
+    '''
+    displaying google maps, default shows scale of Singapore,
+    zoomed in to user's vicinity when postal code is keyed in. 
+    '''
+    main_add_routine = html.Div(
+        id = "main-add-routine",
+        children = [
+        
+        ]
+    )
+    return main_add_routine
+
+
+def build_main_run_model():
+    '''
+    2 tabs:
+    tab 1: local map showing precipitation data on each pin, 
+        click each pin to see specific barplots of precipitation and wetness of ground on the left hand side.
+    tab 2: dynamic island map showing precipitation across Singapore over the next 30 min window.
+    '''
+    main_run_model = html.Div(
+        id = "main-run-model",
+        children = [
+            dbc.Tabs(
+                        [
+                            dbc.Tab(label="route map", tab_id="map-tab-1"),
+                            dbc.Tab(label="island dynamic map", tab_id="map-tab-2"),
+                        ],
+                    id="map-tabs",
+                    active_tab="map-tab-1",
+                    ),
+                html.Div(id="map-content"),
+        ]
+    )
+    return main_run_model
+
+#### sublpots ####
 def plot_precipitation(station_id):
     '''
     station_id: int, the id of station for which the plot will be shown
@@ -266,6 +306,7 @@ def build_island_map():
 
     # map.update_geos(fitbounds="locations")       
     return map
+
 #### Layout ####
 app.layout = dbc.Row([
     dbc.Col(
@@ -276,15 +317,7 @@ app.layout = dbc.Row([
     ),
     dbc.Col(
         children = [
-            dbc.Tabs(
-                    [
-                        dbc.Tab(label="route map", tab_id="map-tab-1"),
-                        dbc.Tab(label="island dynamic map", tab_id="map-tab-2"),
-                    ],
-                id="map-tabs",
-                active_tab="map-tab-1",
-                ),
-            html.Div(id="map-content"),
+            build_main_run_model()
         ],
 
         width = 9,
