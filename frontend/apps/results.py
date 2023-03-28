@@ -308,7 +308,7 @@ def build_island_map():
     return map
 
 #### Layout ####
-app.layout = dbc.Row([
+layout = dbc.Row([
     dbc.Col(
         children = [
             build_sidebar_run_model()
@@ -353,8 +353,3 @@ def tab_content(active_tab):
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())
                         ])
-
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True) 

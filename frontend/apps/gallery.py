@@ -277,7 +277,7 @@ def build_map():
     return map
 
 #### Layout ####
-app.layout = dbc.Row([
+layout = dbc.Row([
     dbc.Col(
         children = [
             build_sidebar_run_model()
@@ -309,8 +309,4 @@ def update_output_div(input_value):
 '''
 
 
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True,port = 8000) 
 

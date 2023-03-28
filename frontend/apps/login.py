@@ -50,8 +50,6 @@ def handle_login(n_clicks, username, password):
     else:
         return dbc.Alert("Invalid username or password", color="danger")
 
-app.layout = html.Div([login_layout, html.Div(id="login-result")])
+layout = html.Div([login_layout, html.Div(id="login-result")])
 
-if __name__ == "__main__":
-    app.run_server(debug=True)
 
