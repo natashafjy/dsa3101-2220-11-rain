@@ -39,7 +39,7 @@ df = update_df()
 
 # setting up Singapore basemap
 map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
-with open(map_path) as f:
+with open(map_path,'r', encoding = "UTF-8") as f:
     sg_basemap = geojson.load(f)
 
 
