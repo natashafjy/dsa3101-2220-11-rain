@@ -1,8 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
-
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
+from app import app
+##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
 login_layout = html.Div([
     dbc.Row(
@@ -27,7 +27,9 @@ login_layout = html.Div([
                     ],
                     className="mr-3",
                 ),
-                dbc.Button("Submit", color="primary", id="submit-button"),
+                dcc.Link(
+                           dbc.Button("Submit", color="primary", id="submit-button"),
+                           href='/gallery'),
             ],
             width={"size": 6, "offset": 3},
             className="mb-3",
