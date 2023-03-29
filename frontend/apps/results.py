@@ -20,14 +20,6 @@ import pathlib
 
 from app import app
 
-# server = Flask(__name__)
-#app = dash.Dash(__name__, 
-#                external_stylesheets=[dbc.themes.MORPH],
-#                # use_pages = True,
-#                # server = server,
-#                meta_tags=[{'name': 'viewport',
-#                            'content': 'width=device-width, initial-scale=1.0'}],
-#                )
 
 load_figure_template('MORPH')
 
@@ -39,106 +31,11 @@ def update_df():
     return new_df
 df = update_df()
 
-# setting up Singapore basemap
-map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
-with open(map_path) as f:
-    sg_basemap = geojson.load(f)
+# tokens
+mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
+gmap_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
 
-
-
-def build_sidebar_add_routine():
-    '''
-    routine drop down
-	Postal-code input -> to do: check format is correct
-	H4: Running time
-	Time input -> to do: set step to 5-min
-	Which-day-of-week select 
-	Save button -> to do: how to set horizontal align to center (should be in style?)
-
-    '''
-    sidebar_add_routine = html.Div(
-        id = "sidebar-add-routine",
-        children = [
-            html.H4("Set-up your running routine!"),
-            html.Br(),
-            dbc.Row([
-                dbc.Col([
-                    # postal-code input
-                    dbc.FormFloating(
-                        id = "postal-code-input",
-                        children = [
-                            dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                            dbc.Label("postal code"),
-                            ]
-                        )   
-                ]),
-                dbc.Col([
-                    # routine drop-down
-                    dbc.DropdownMenu(
-                        id = "routine-dropdown",
-                        label = "routine",
-                        children = [
-                            dbc.DropdownMenuItem("Select a routine", header = True),
-                            dbc.DropdownMenuItem("Routine 1"),
-                            dbc.DropdownMenuItem("Routine 2")
-                            ],
-                        )
-                ])
-            ]),
-            
-            html.Br(),
-            html.Br(),
-            # running time input
-            html.H5("Running Time"),
-            dbc.Row([
-                dbc.Col([
-                    html.Div([
-                        dbc.Label("start"),
-                        dbc.Input(
-                            id = "start-time-input",
-                            type = "Time")
-                        # ,dbc.FormText("starting time")
-                    ])
-                ]),
-                dbc.Col(
-                    html.Div([
-                        dbc.Label("End"),
-                        dbc.Input(
-                            id = "end-time-input",
-                            type = "Time")
-                    ])
-                    
-                )
-            ]),
-            html.Br(),
-
-            # which-day-of-the-week button group
-            html.Div([
-                dbc.Label("which days of the week?"),
-                dbc.ButtonGroup([
-                    dbc.Button("M"),
-                    dbc.Button("T"),
-                    dbc.Button("W"),
-                    dbc.Button("T"),
-                    dbc.Button("F"),
-                    dbc.Button("S"),
-                    dbc.Button("S")
-                ],
-                id = "day-of-week-button",
-                size = "sm")
-            ]),
-            html.Br(),
-            html.Br(),
-
-            # save button
-            dbc.Button("save", size = "md", style = {"left":"7rem"})
-            
-            
-        ],
-        style=SIDEBAR_STYLE
-    )
-    return sidebar_add_routine
-
+# styles
 SIDEBAR_STYLE = {
     "position": "fixed",
     "top": 0,
@@ -157,11 +54,10 @@ def build_sidebar_run_model():
     '''
     Routine dropdown 
     # Img weather icon
-	Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
-	Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
-	Suggestion-bar -> to-do: adjust spacing in between
-	Span: (text) summary, tips etc 
-
+    Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
+    Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
+    Suggestion-bar -> to-do: adjust spacing in between
+    Span: (text) summary, tips etc 
     '''
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
@@ -196,7 +92,10 @@ def build_sidebar_run_model():
             dbc.Badge("Caution, advised not to run!", color = "danger"),
             # tips card 
             dbc.Card([
-            ])
+            ]),
+            html.Br(),
+            html.Br(),
+            dcc.Link(dbc.Button("back to routine gallery", size = "md", style = {"left":"3rem"}),href='/gallery')
             
 
             # dbc.Table.from_dataframe(df)
@@ -206,19 +105,6 @@ def build_sidebar_run_model():
     ,style = SIDEBAR_STYLE
     )
     return sidebar_run_model
-
-def build_main_add_routine():
-    '''
-    displaying google maps, default shows scale of Singapore,
-    zoomed in to user's vicinity when postal code is keyed in. 
-    '''
-    main_add_routine = html.Div(
-        id = "main-add-routine",
-        children = [
-        
-        ]
-    )
-    return main_add_routine
 
 
 def build_main_run_model():
@@ -273,16 +159,22 @@ def plot_wetness(station_id):
     wetness_plot.update_layout(margin = dict(t=25, b=0))
     return wetness_plot
 
-def build_local_map():
+def build_local_map(start_address, end_address):
     '''
     the map in tab 1 showing rainfall near the specific route
     '''
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+
     map = html.Div(
         id = "map-div",
         children = [
-            html.H4("Map should appear on this side.")
-        ],
-        style = {"left":0}         
+            html.Iframe(
+                id='map',
+                srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
+                style={'height': '100%', 'width': '100%'}
+                )
+            ]
+       #,style = {"left":0}         
     )
     
     return map
@@ -292,13 +184,13 @@ def build_island_map():
     the island-wide dynamic map showing rainfall over Singapore for 30-min window,
     returning px graph object
     '''
-    px.set_mapbox_access_token(open(".mapbox_token").read())
+    px.set_mapbox_access_token(mapbox_token)
     map = px.scatter_mapbox(data_frame = df, 
                       #geojson = gj,
                      lat = "latitude",
                      lon = "longtitude",
                      color = "probability",
-                     size = "precipitation",
+                     size = "precipitation", 
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
@@ -349,7 +241,13 @@ def update_output_div(input_value):
 )
 def tab_content(active_tab):
     if active_tab == "map-tab-1": # at map-tab-1
-        return "This is tab {}".format(active_tab)
+        return html.Div(id = "map-tab-1-div",
+                        children = [
+                            dcc.Graph(id="local-map", figure=build_local_map(
+                                    start_address='138601',
+                                    end_address='126978'
+                            ))
+                        ])
     if active_tab == "map-tab-2":
         return html.Div(id = "map-tab-2-div",
                         children = [
