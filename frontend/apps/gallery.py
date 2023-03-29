@@ -70,12 +70,9 @@ def build_sidebar_run_model():
            	
            	dbc.Row([
                 # postal-code input
-                dbc.FormFloating(
-                    id = "postal-code-input",
-                    children = [
-                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                        dbc.Label("postal code"),
-                        ]
+                dbc.Label("postal-code-input"),
+                html.Div(
+                    html.Div(id = 'postal-code-output')
                     )   
             
         
@@ -179,14 +176,17 @@ layout = dbc.Row([
     
 
 #### callback ####
-'''
+
 @app.callback(
-    Output(component_id='my-output', component_property='children'),
-    Input(component_id='my-input', component_property='value')
+    Output(component_id='postal-code-output', component_property='children'),
+    Input(component_id='routine-dropdown-2', component_property='value')
 )
 def update_output_div(input_value):
-    return f'Output: {input_value}'
-'''
-
+    if input_value == "Select a routine":
+        return 'Select your routine'
+    elif input_value == 'Routine 1':
+        return '138600'
+    elif input_value == 'Routine 2':
+        return '126754'
 
 
