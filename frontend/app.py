@@ -37,12 +37,22 @@ def update_df():
     return new_df
 df = update_df()
 
-# setting up Singapore basemap
-map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
-with open(map_path) as f:
-    sg_basemap = geojson.load(f)
+# tokens
+mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
+gmap_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
 
-
+# styles
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "right" :0,
+    "width": "25rem", # rem is "root-em", indicates relative size to the scale of root element
+    "padding": "2rem",
+    "background-color": "#f8f9fa",
+    # "color" : "#4A6FA5"
+}
 
 def build_sidebar_add_routine():
     '''
@@ -137,18 +147,6 @@ def build_sidebar_add_routine():
     )
     return sidebar_add_routine
 
-SIDEBAR_STYLE = {
-    "position": "fixed",
-    "top": 0,
-    "left": 0,
-    "bottom": 0,
-    "right" :0,
-    "width": "25rem", # rem is "root-em", indicates relative size to the scale of root element
-    "padding": "2rem",
-    "background-color": "#f8f9fa",
-    # "color" : "#4A6FA5"
-}
-
 def build_sidebar_run_model():
 
 
@@ -218,7 +216,6 @@ def build_main_add_routine():
     )
     return main_add_routine
 
-
 def build_main_run_model():
     '''
     2 tabs:
@@ -271,16 +268,22 @@ def plot_wetness(station_id):
     wetness_plot.update_layout(margin = dict(t=25, b=0))
     return wetness_plot
 
-def build_local_map():
+def build_local_map(start_address, end_address):
     '''
     the map in tab 1 showing rainfall near the specific route
     '''
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+
     map = html.Div(
         id = "map-div",
         children = [
-            html.H4("Map should appear on this side.")
-        ],
-        style = {"left":0}         
+            html.Iframe(
+                id='map',
+                srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
+                style={'height': '100%', 'width': '100%'}
+                )
+            ]
+       #,style = {"left":0}         
     )
     
     return map
@@ -290,13 +293,13 @@ def build_island_map():
     the island-wide dynamic map showing rainfall over Singapore for 30-min window,
     returning px graph object
     '''
-    px.set_mapbox_access_token(open(".mapbox_token").read())
+    px.set_mapbox_access_token(mapbox_token)
     map = px.scatter_mapbox(data_frame = df, 
                       #geojson = gj,
                      lat = "latitude",
                      lon = "longtitude",
                      color = "probability",
-                     size = "precipitation",
+                     size = "precipitation", 
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
@@ -347,7 +350,13 @@ def update_output_div(input_value):
 )
 def tab_content(active_tab):
     if active_tab == "map-tab-1": # at map-tab-1
-        return "This is tab {}".format(active_tab)
+        return html.Div(id = "map-tab-1-div",
+                        children = [
+                            dcc.Graph(id="local-map", figure=build_local_map(
+                                    start_address='138601',
+                                    end_address='126978'
+                            ))
+                        ])
     if active_tab == "map-tab-2":
         return html.Div(id = "map-tab-2-div",
                         children = [
