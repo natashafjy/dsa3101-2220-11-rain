@@ -19,6 +19,7 @@ import os
 import pathlib
 
 from app import app
+default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 
 # server = Flask(__name__)
 #app = dash.Dash(__name__, 
@@ -41,7 +42,7 @@ df = update_df()
 
 # setting up Singapore basemap
 map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
-with open(map_path) as f:
+with open(map_path,'r',encoding="UTF-8") as f: #3.29 encoding problem solved
     sg_basemap = geojson.load(f)
 
 
@@ -273,20 +274,7 @@ def plot_wetness(station_id):
     wetness_plot.update_layout(margin = dict(t=25, b=0))
     return wetness_plot
 
-def build_local_map():
-    '''
-    the map in tab 1 showing rainfall near the specific route
-    '''
-    map = html.Div(
-        id = "map-div",
-        children = [
-            html.H4("Map should appear on this side.")
-        ],
-        style = {"left":0}         
-    )
-    
-    return map
-
+#def build_local_map(): deleted in 3.29 by Dongmen since collapse
 def build_island_map():
     '''
     the island-wide dynamic map showing rainfall over Singapore for 30-min window,
@@ -308,6 +296,57 @@ def build_island_map():
 
     # map.update_geos(fitbounds="locations")       
     return map
+
+def get_address_options(input_value):
+    if not input_value:
+        return []
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    address_results = gmaps.places_autocomplete(
+        input_value,
+        components={'country': 'SG'}
+    )
+    return [{'label': result['description'], 'value': result['description']} for result in address_results]
+
+def update_start_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='start-address-dropdown-list',
+            options=get_address_options(input_value),
+            value=""
+
+        )
+    ])
+
+def update_end_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='end-address-dropdown-list',
+            options=get_address_options(input_value),
+            value=""
+        )
+    ])
+
+def calculate_route(start_address, end_address):
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    directions_result = gmaps.directions(
+        start_address,
+        end_address,
+        mode='walking',
+        optimize_waypoints=True,
+        departure_time=datetime.now()
+    )
+    route = directions_result[0]['legs'][0]
+    return route
+
+
+def update_map(n_clicks, start_address, end_address):
+    if not start_address or not end_address:
+        # Return the default map URL if no addresses are entered
+        return default_map_url
+
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+
+    return map_url
 
 #### Layout ####
 layout = dbc.Row([
@@ -348,8 +387,46 @@ def update_output_div(input_value):
     Output("map-content", "children"), [Input("map-tabs", "active_tab")]
 )
 def tab_content(active_tab):
-    if active_tab == "map-tab-1": # at map-tab-1
-        return "This is tab {}".format(active_tab)
+    if active_tab == "map-tab-1": #Dongmen 3.29
+        map = html.Div([
+        html.Div([
+            html.Label('Starting Address'),
+            dcc.Input(
+                id='start-address-input',
+                type='text',
+                placeholder='Enter starting address'
+        ),
+        html.Div(id='start-address-dropdown'),], 
+        style={'width': '45%', 'display': 'inline-block'}),
+        html.Div([
+            html.Label('Ending Address'),
+            dcc.Input(
+                id='end-address-input',
+                type='text',
+                placeholder='Enter ending address'
+        ),
+        html.Div(id='end-address-dropdown'),], 
+        style={'width': '45%', 'display': 'inline-block'}),
+        html.Button(
+            'Submit',
+            id='submit-button',
+            n_clicks=0),
+        html.Div(
+            id='map-container',
+            children=[
+                html.Iframe(
+                    id='map-iframe',
+                    src=default_map_url,
+                    width='190%',
+                    height='655'
+            )],
+            style={
+                'width': '50%',
+                'float': 'left'}
+            )
+        ]
+    )
+        return map
     if active_tab == "map-tab-2":
         return html.Div(id = "map-tab-2-div",
                         children = [
