@@ -79,11 +79,12 @@ def build_sidebar_gallery():
             #             ),
             html.Br(),
            	
+            html.H5("Starting point"),
            	dbc.Row([
                 # postal-code input
-                dbc.Label("routine postal code"),
+                #dbc.Label("routine postal code"),
                 html.Div(
-                    id = 'postal-code-output', 
+                    id = 'starting-point', 
                     children = [])
                     
             
@@ -91,6 +92,18 @@ def build_sidebar_gallery():
             ]),
 
             html.Br(),
+            html.H5("Ending point"),
+            dbc.Row([
+                # postal-code input
+                #dbc.Label("routine postal code"),
+                html.Div(
+                    id = 'ending-point', 
+                    children = [])
+                    
+            
+        
+            ]),
+
             html.Br(),
 
             html.H5("Running Time"),
@@ -117,6 +130,7 @@ def build_sidebar_gallery():
             html.Br(),
 
             # which-day-of-the-week button group
+            html.H5("Days of week"),
             html.Div(
                 id = "day-of-week-div",
                 children = [
@@ -203,7 +217,8 @@ layout = dbc.Row([
 
 @app.callback(
     Output('gallery-title', 'children'),
-    Output('postal-code-output', 'children'),
+    Output('starting-point', 'children'),
+    Output('ending-point','children'),
     Output('start-time-input', 'value'),
     Output('start-time-input', 'disabled'),
     Output('end-time-input', 'value'),
@@ -215,7 +230,8 @@ def update_routine_info(selected_routine):
     selected_routine: int, 1,2
     '''
     gallery_title = "Choose an existing routine or add a new routine!"
-    postal_code = " "
+    start_point = " "
+    end_point = " "
     start_time_value = ""
     start_time_disabled = False
     end_time_value = ""
@@ -225,20 +241,22 @@ def update_routine_info(selected_routine):
         gallery_title = f'Current routine selected is {selected_routine}'
 
     if selected_routine == "1":
-        postal_code = "138600, UTown Residence"
+        start_point = "138600, UTown Residence"
+        end_point = "126754, 103 West Coast Vale"
         start_time_value = '12:00'
         start_time_disabled = True
         end_time_value = '12:30'
         end_time_disabled = True
     
     if selected_routine == "2":
-        postal_code = "141080, Alexandra Canal Linear Park"
+        start_point = "141080, Alexandra Canal Linear Park"
+        end_point = "138600, UTown Residence"
         start_time_value = '18:00'
         start_time_disabled = True
         end_time_value = '18:30'
         end_time_disabled = True
 
-    return gallery_title, postal_code, start_time_value, start_time_disabled,end_time_value, end_time_disabled
+    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled
 
 @app.callback(
     Output("day-of-week-div", 'children'),
@@ -246,7 +264,7 @@ def update_routine_info(selected_routine):
 )
 def update_weekday_button_group_info(selected_routine):
     if selected_routine == "1":
-        return "Days of week: Tuesday, Thursday, Friday"
+        return "Tuesday, Thursday, Friday"
     if selected_routine == "2":
-        return "Days of week: Monday, Wednesday, Friday"
+        return "Monday, Wednesday, Friday"
 

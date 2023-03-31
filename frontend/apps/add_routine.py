@@ -62,29 +62,59 @@ def build_sidebar_add_routine():
         children = [
             html.H4("Set-up your running routine!"),
             html.Br(),
+            html.H5("Starting point"),
             dbc.Row([
-                dbc.Col([
+                
                     # postal-code input
-                    dbc.FormFloating(
-                        id = "postal-code-input",
-                        children = [
-                            dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                            dbc.Label("postal code"),
-                            ]
-                        )   
-                ]),
-                dbc.Col([
-                    # routine drop-down
-                    dbc.DropdownMenu(
-                        id = "routine-dropdown",
-                        label = "routine",
-                        children = [
-                            dbc.DropdownMenuItem("Select a routine", header = True),
-                            dbc.DropdownMenuItem("Routine 1"),
-                            dbc.DropdownMenuItem("Routine 2")
-                            ],
-                        )
-                ])
+                dbc.FormFloating(
+                    id = "start-point",
+                    children = [
+                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
+                        dbc.Label("start point"),
+                        ]
+                    )   
+                
+                #dbc.Col([
+                #    # routine drop-down
+                #    dbc.DropdownMenu(
+                #        id = "routine-dropdown",
+                #        label = "routine",
+                #        children = [
+                #            dbc.DropdownMenuItem("Select a routine", header = True),
+                #            dbc.DropdownMenuItem("Routine 1"),
+                #            dbc.DropdownMenuItem("Routine 2")
+                #            ],
+                #        )
+                #])
+            ]),
+
+        html.Br(),
+        
+        html.H5("ending point"),
+
+        dbc.Row([
+                
+                    # postal-code input
+                dbc.FormFloating(
+                    id = "end-point",
+                    children = [
+                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
+                        dbc.Label("end point"),
+                        ]
+                    )   
+                
+                #dbc.Col([
+                #    # routine drop-down
+                #    dbc.DropdownMenu(
+                #        id = "routine-dropdown",
+                #        label = "routine",
+                #        children = [
+                #            dbc.DropdownMenuItem("Select a routine", header = True),
+                #            dbc.DropdownMenuItem("Routine 1"),
+                #            dbc.DropdownMenuItem("Routine 2")
+                #            ],
+                #        )
+                #])
             ]),
             
             html.Br(),
@@ -118,13 +148,13 @@ def build_sidebar_add_routine():
                 dbc.Label("which days of the week?"),
                 dbc.Checklist(
                     options=[
-                        {"label": "M", "value": "M"},
-                        {"label": "T", "value": "T"},
-                        {"label": "W", "value": "W"},
-                        {"label": "T", "value": "Th"},
-                        {"label": "F", "value": "F"},
-                        {"label": "S", "value": "Sa"},
-                        {"label": "S", "value": "Su"},
+                        {"label": "Mon", "value": "M"},
+                        {"label": "Tue", "value": "T"},
+                        {"label": "Wed", "value": "W"},
+                        {"label": "Thu", "value": "Th"},
+                        {"label": "Fri", "value": "F"},
+                        {"label": "Sat", "value": "Sa"},
+                        {"label": "Sun", "value": "Su"},
                     ],
                     value=["M", "T", "W", "Th", "F", "Sa", "Su"],
                     id="day-of-week-checklist",

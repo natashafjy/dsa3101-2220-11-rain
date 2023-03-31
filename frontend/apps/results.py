@@ -64,15 +64,15 @@ def build_sidebar_run_model():
         children = [
             html.H4("Choose running routine and get prediction!"),
             # drop-down to select routine
-            dbc.DropdownMenu(
-                        id = "routine-dropdown-2",
-                        label = "routine",
-                        children = [
-                            dbc.DropdownMenuItem("Select a routine", header = True),
-                            dbc.DropdownMenuItem("Routine 1"),
-                            dbc.DropdownMenuItem("Routine 2")
-                            ],
-                        ),
+            #dbc.DropdownMenu(
+            #            id = "routine-dropdown-2",
+            #            label = "routine",
+            #            children = [
+            #                dbc.DropdownMenuItem("Select a routine", header = True),
+            #                dbc.DropdownMenuItem("Routine 1"),
+            #                dbc.DropdownMenuItem("Routine 2")
+            #                ],
+            #            ),
             html.Br(),
             
             # precipitation bar plot
