@@ -42,7 +42,7 @@ SIDEBAR_STYLE = {
     # "color" : "#4A6FA5"
 }
 
-def build_sidebar_run_model():
+def build_sidebar_gallery():
     '''
     Routine dropdown 
     # Img weather icon
@@ -52,28 +52,40 @@ def build_sidebar_run_model():
 	Span: (text) summary, tips etc 
 
     '''
-    sidebar_run_model = html.Div(
-        id = "sidebar-run-model",
+    sidebar_gallery = html.Div(
+        id = "sidebar-gallery",
         children = [
-            html.H4("Choose existing rootine or add new routine!"),
+            html.H4(id = "gallery-title", children = "Choose a existing routine or add a new routine!"),
             # drop-down to select routine
-            dbc.DropdownMenu(
-                        id = "routine-dropdown-2",
-                        label = "routine",
-                        children = [
-                            dbc.DropdownMenuItem("Select a routine", header = True),
-                            dbc.DropdownMenuItem("Routine 1"),
-                            dbc.DropdownMenuItem("Routine 2")
-                            ],
-                        ),
+            dbc.Select(
+                id = "routine-dropdown-3",
+               # value = 'select a routine',
+                options = [
+                    {'label':'Routine 1', 'value':1},
+                    {'label':'Routine 2', 'value':2}
+                ],
+                value = 0
+
+        
+            ),
+            # dbc.DropdownMenu(
+            #             id = "routine-dropdown-2",
+            #             label = "routine",
+            #             children = [
+            #                 dbc.DropdownMenuItem("Select a routine", header = True),
+            #                 dbc.DropdownMenuItem(id = "dropdownItem1",label = "Routine 1"),
+            #                 dbc.DropdownMenuItem("Routine 2")
+            #                 ],
+            #             ),
             html.Br(),
            	
            	dbc.Row([
                 # postal-code input
-                dbc.Label("postal-code-input"),
+                dbc.Label("routine postal code"),
                 html.Div(
-                    html.Div(id = 'postal-code-output')
-                    )   
+                    id = 'postal-code-output', 
+                    children = [])
+                    
             
         
             ]),
@@ -105,16 +117,18 @@ def build_sidebar_run_model():
             html.Br(),
 
             # which-day-of-the-week button group
-            html.Div([
-                dbc.Label("running days of the week!"),
+            html.Div(
+                id = "day-of-week-div",
+                children = [
+                dbc.Label("running days of the week"),
                 dbc.ButtonGroup([
-                    dbc.Button("1"),
-                    dbc.Button("2"),
-                    dbc.Button("3"),
-                    dbc.Button("4"),
-                    dbc.Button("5"),
-                    dbc.Button("6"),
-                    dbc.Button("7")
+                    dbc.Button(id = "mon", children = "1"),
+                    dbc.Button(id = "tues", children = "2"),
+                    dbc.Button(id = "wed",children = "3"),
+                    dbc.Button(id = "thur",children = "4"),
+                    dbc.Button(id = "fri",children = "5"),
+                    dbc.Button(id = "sat",children = "6"),
+                    dbc.Button(id = "sun",children = "7")
                 ],
                 id = "day-of-week-button",
                 size = "sm")
@@ -140,7 +154,7 @@ def build_sidebar_run_model():
             #dbc.Table.from_dataframe(df.loc[:,["time","wetness"]], np.repeat(1, df.shape[0])], axis = 1), striped=True, bordered=True, hover=True)
     ],
     style = SIDEBAR_STYLE)
-    return sidebar_run_model
+    return sidebar_gallery
 
 def build_map():
     map = html.Div(
@@ -157,7 +171,7 @@ def build_map():
 layout = dbc.Row([
     dbc.Col(
         children = [
-            build_sidebar_run_model()
+            build_sidebar_gallery()
         ]
     ),
     dbc.Col(
@@ -177,16 +191,59 @@ layout = dbc.Row([
 
 #### callback ####
 
-@app.callback(
-    Output(component_id='postal-code-output', component_property='children'),
-    Input(component_id='routine-dropdown-2', component_property='value')
-)
-def update_output_div(input_value):
-    if input_value == "Select a routine":
-        return 'Select your routine'
-    elif input_value == 'Routine 1':
-        return '138600'
-    elif input_value == 'Routine 2':
-        return '126754'
+# @app.callback(
+#     Output(component_id='routine-dropdown-3', component_property='value'),
+#     Input(component_id='routine-dropdown-3', component_property='label')
+# )
+# def update_dropdown_header(input_value):
+#     return input_value
 
+@app.callback(
+    Output('gallery-title', 'children'),
+    Output('postal-code-output', 'children'),
+    Output('start-time-input', 'value'),
+    Output('start-time-input', 'disabled'),
+    Output('end-time-input', 'value'),
+    Output('end-time-input', 'disabled'),
+    Input('routine-dropdown-3', 'value')
+)
+def update_routine_info(selected_routine):
+    '''
+    selected_routine: int, 1,2
+    '''
+    gallery_title = "Choose an existing routine or add a new routine!"
+    postal_code = " "
+    start_time_value = ""
+    start_time_disabled = False
+    end_time_value = ""
+    end_time_disabled = False
+    # if there is any routine selected
+    if selected_routine != 0:
+        gallery_title = f'Current routine selected is {selected_routine}'
+
+    if selected_routine == "1":
+        postal_code = "138600, UTown Residence"
+        start_time_value = '12:00'
+        start_time_disabled = True
+        end_time_value = '12:30'
+        end_time_disabled = True
+    
+    if selected_routine == "2":
+        postal_code = "141080, Alexandra Canal Linear Park"
+        start_time_value = '18:00'
+        start_time_disabled = True
+        end_time_value = '18:30'
+        end_time_disabled = True
+
+    return gallery_title, postal_code, start_time_value, start_time_disabled,end_time_value, end_time_disabled
+
+@app.callback(
+    Output("day-of-week-div", 'children'),
+    Input('routine-dropdown-3', 'value')
+)
+def update_weekday_button_group_info(selected_routine):
+    if selected_routine == "1":
+        return "Days of week: Tuesday, Thursday, Friday"
+    if selected_routine == "2":
+        return "Days of week: Monday, Wednesday, Friday"
 
