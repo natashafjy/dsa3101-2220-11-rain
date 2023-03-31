@@ -116,17 +116,20 @@ def build_sidebar_add_routine():
             # which-day-of-the-week button group
             html.Div([
                 dbc.Label("which days of the week?"),
-                dbc.ButtonGroup([
-                    dbc.Button("M"),
-                    dbc.Button("T"),
-                    dbc.Button("W"),
-                    dbc.Button("T"),
-                    dbc.Button("F"),
-                    dbc.Button("S"),
-                    dbc.Button("S")
-                ],
-                id = "day-of-week-button",
-                size = "sm")
+                dbc.Checklist(
+                    options=[
+                        {"label": "M", "value": "M"},
+                        {"label": "T", "value": "T"},
+                        {"label": "W", "value": "W"},
+                        {"label": "T", "value": "Th"},
+                        {"label": "F", "value": "F"},
+                        {"label": "S", "value": "Sa"},
+                        {"label": "S", "value": "Su"},
+                    ],
+                    value=["M", "T", "W", "Th", "F", "Sa", "Su"],
+                    id="day-of-week-checklist",
+                    inline=True
+                )
             ]),
             html.Br(),
             html.Br(),

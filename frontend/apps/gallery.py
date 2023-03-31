@@ -121,17 +121,20 @@ def build_sidebar_gallery():
                 id = "day-of-week-div",
                 children = [
                 dbc.Label("running days of the week"),
-                dbc.ButtonGroup([
-                    dbc.Button(id = "mon", children = "1"),
-                    dbc.Button(id = "tues", children = "2"),
-                    dbc.Button(id = "wed",children = "3"),
-                    dbc.Button(id = "thur",children = "4"),
-                    dbc.Button(id = "fri",children = "5"),
-                    dbc.Button(id = "sat",children = "6"),
-                    dbc.Button(id = "sun",children = "7")
-                ],
-                id = "day-of-week-button",
-                size = "sm")
+                dbc.Checklist(
+                    options=[
+                        {"label": "M", "value": "M"},
+                        {"label": "T", "value": "T"},
+                        {"label": "W", "value": "W"},
+                        {"label": "T", "value": "Th"},
+                        {"label": "F", "value": "F"},
+                        {"label": "S", "value": "Sa"},
+                        {"label": "S", "value": "Su"},
+                    ],
+                    value=["M", "T", "W", "Th", "F", "Sa", "Su"],
+                    id="day-of-week-checklist",
+                    inline=True
+                )
             ]),
             html.Br(),
             html.Br(),
