@@ -46,9 +46,9 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "25rem", # rem is "root-em", indicates relative size to the scale of root element
+    "width": "24.3rem", # rem is "root-em", indicates relative size to the scale of root element #Change to 24.2 to reduce gap 3.31
     "padding": "2rem",
-    "background-color": "#f8f9fa",
+    "background-color": "#f8f9fa"
     # "color" : "#4A6FA5"
 }
 
@@ -279,7 +279,7 @@ def build_map(): #Dongmen 3.29
             placeholder='Enter starting address'
         ),
         html.Div(id='start-address-dropdown'),
-    ], style={'width': '48%', 'display': 'inline-block'}),
+    ], style={'width': '45%', 'display': 'inline-block'}),
 
     html.Div([
         html.Label('Ending Address'),
@@ -289,7 +289,7 @@ def build_map(): #Dongmen 3.29
             placeholder='Enter ending address'
         ),
         html.Div(id='end-address-dropdown'),
-    ], style={'width': '48%', 'display': 'inline-block'}),
+    ], style={'width': '45%', 'display': 'inline-block'}),
 
     html.Button(
         'Submit',
@@ -302,13 +302,13 @@ def build_map(): #Dongmen 3.29
             html.Iframe(
                 id='map-iframe',
                 src=default_map_url,
-                width='190%',
-                height='655'
+                width='195%',
+                height='695'
             )
         ],
         style={
             'width': '50%',
-            'float': 'left'
+            'float': 'left',
         }
     )
 ])
@@ -385,12 +385,14 @@ layout = dbc.Row([
     dbc.Col(
         children = [
             build_sidebar_run_model()
-        ]
+        ],
+        width = 3 #Adding width to fit the map 3.31
     ),
     dbc.Col(
         children = [
             build_map()
-        ]
+        ],
+        width = 9
     ),
     dcc.Interval(
             id="interval-component",
