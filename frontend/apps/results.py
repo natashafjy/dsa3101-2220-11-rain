@@ -186,11 +186,10 @@ def build_island_map():
     '''
     px.set_mapbox_access_token(mapbox_token)
     map = px.scatter_mapbox(data_frame = df, 
-                      #geojson = gj,
                      lat = "latitude",
                      lon = "longtitude",
-                     color = "probability",
-                     size = "precipitation", 
+                     size = "precipitation",
+                     # size_max = 30,
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
@@ -240,6 +239,7 @@ def update_output_div(input_value):
     Output("map-content", "children"), [Input("map-tabs", "active_tab")]
 )
 def tab_content(active_tab):
+    global df
     if active_tab == "map-tab-1": # at map-tab-1
         return html.Div(id = "map-tab-1-div",
                         children = [
@@ -249,6 +249,7 @@ def tab_content(active_tab):
                             ))
                         ])
     if active_tab == "map-tab-2":
+        df = update_df()
         return html.Div(id = "map-tab-2-div",
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())
