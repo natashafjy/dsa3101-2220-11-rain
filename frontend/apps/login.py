@@ -2,6 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
 from app import app
+from dash.dependencies import Input, Output, State
 ##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
 
@@ -15,29 +16,32 @@ layout = html.Div([
                 dbc.CardGroup(
                     [
                         dbc.Label("Username"),
-                        dbc.Input(type="text", id="username-input"),
+                        dbc.Input(type="text", id="username",debounce = True),
                     ],
                     className="mr-3",
                 ),
                 dbc.CardGroup(
                     [
                         dbc.Label("Password"),
-                        dbc.Input(type="password", id="password-input"),
+                        dbc.Input(type="password", id="password",debounce = True),
                     ],
                     className="mr-3",
                 ),
                 html.Br(),
                 dbc.Row([
                     dbc.Col([
-                        dcc.Link(
-                           dbc.Button("Log in", color="primary", id="submit-button"),
-                           href='/gallery')
+                        dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)
                         ]),
                     dbc.Col([
                         dcc.Link(
-                           dbc.Button("Sign up", color="primary", id="submit-button"),
+                           dbc.Button("Sign up", color="primary", id="signup-button"),
                            href='/signup')
                         ]),
+                    html.Br(),
+                    html.Br(),
+                    html.Br(),
+                    html.Div(id='query-results'),
+                    #dcc.Location(id='url', refresh=False)
                     ]),
                 
             ],
@@ -45,24 +49,26 @@ layout = html.Div([
             className="mb-3")
         ],
         style={"margin-top": "150px", "margin-bottom": "20px"}
-    ),
+    )
 ])
-'''
+
+#layout = html.Div([login_layout, html.Div(id="login-result")])
+
 @app.callback(
-    dash.dependencies.Output("login-result", "children"),
-    [dash.dependencies.Input("submit-button", "n_clicks")],
-    [
-        dash.dependencies.State("username-input", "value"),
-        dash.dependencies.State("password-input", "value"),
-    ],
+    #[Output('alert-container', 'children'),
+    #    Output('url', 'pathname')],
+    Output('query-results','children'),
+    [Input('login-button', 'n_clicks')],
+    [dash.dependencies.State('username', 'value'),
+     dash.dependencies.State('password', 'value')]
 )
-def handle_login(n_clicks, username, password):
-    if username == "myusername" and password == "mypassword":
-        return dbc.Alert("Login successful", color="success")
+def validate_login(n_clicks, username, password):
+    li = {'amy':'pw'}
+    if username == '' or not username or password == '' or not password:
+            return  html.Div(children='')
+    if username not in li:
+        return html.Div(children=dbc.Alert('User name not exists!', color='danger', duration=None))
+    if li[username]==password:
+        return html.Div(dcc.Link('Access Granted!', href='/gallery'))
     else:
-        return dbc.Alert("Invalid username or password", color="danger")
-
-layout = html.Div([login_layout, html.Div(id="login-result")])
-
-'''
-
+        return html.Div(children=dbc.Alert('Invalid password', color='danger', duration=None))
