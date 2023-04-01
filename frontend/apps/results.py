@@ -397,36 +397,39 @@ def update_output_div(input_value):
     Output("map-content", "children"), [Input("map-tabs", "active_tab")]
 )
 def tab_content(active_tab):
+    start_address = "River Valley Road"
+    end_address = "Alexandra Canal Linear Park"
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
     if active_tab == "map-tab-1": #Dongmen 3.29
         map = html.Div([
-        html.Div([
-            html.Label('Starting Address'),
-            dcc.Input(
-                id='start-address-input',
-                type='text',
-                placeholder='Enter starting address'
-        ),
-        html.Div(id='start-address-dropdown'),], 
-        style={'width': '45%', 'display': 'inline-block'}),
-        html.Div([
-            html.Label('Ending Address'),
-            dcc.Input(
-                id='end-address-input',
-                type='text',
-                placeholder='Enter ending address'
-        ),
-        html.Div(id='end-address-dropdown'),], 
-        style={'width': '45%', 'display': 'inline-block'}),
-        html.Button(
-            'Submit',
-            id='submit-button',
-            n_clicks=0),
+        # html.Div([
+        #     html.Label('Starting Address'),
+        #     dcc.Input(
+        #         id='start-address-input',
+        #         type='text',
+        #         placeholder='Enter starting address'
+        # ),
+        # html.Div(id='start-address-dropdown'),], 
+        # style={'width': '45%', 'display': 'inline-block'}),
+        # html.Div([
+        #     html.Label('Ending Address'),
+        #     dcc.Input(
+        #         id='end-address-input',
+        #         type='text',
+        #         placeholder='Enter ending address'
+        # ),
+        # html.Div(id='end-address-dropdown'),], 
+        # style={'width': '45%', 'display': 'inline-block'}),
+        # html.Button(
+        #     'Submit',
+        #     id='submit-button',
+        #     n_clicks=0),
         html.Div(
             id='map-container',
             children=[
                 html.Iframe(
                     id='map-iframe',
-                    src=default_map_url,
+                    src=map_url,
                     width='190%',
                     height='655'
             )],
