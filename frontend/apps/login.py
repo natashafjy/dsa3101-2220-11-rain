@@ -1,16 +1,15 @@
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc
+from app import app
+##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
-login_layout = html.Div([
-    dbc.Row(
-        dbc.Col(html.H2("Login"), width={"size": 6, "offset": 3}),
-        justify="center",
-        style={"margin-top": "40px", "margin-bottom": "20px"},
-    ),
-    dbc.Row(
+layout = html.Div([
+    dbc.Row([
+        dbc.Col(html.H2("Welcome to <app-name>"),
+                width={"size": 6, "offset": 3}),
+   
         dbc.Col(
             [
                 dbc.CardGroup(
@@ -27,15 +26,28 @@ login_layout = html.Div([
                     ],
                     className="mr-3",
                 ),
-                dbc.Button("Submit", color="primary", id="submit-button"),
+                html.Br(),
+                dbc.Row([
+                    dbc.Col([
+                        dcc.Link(
+                           dbc.Button("Log in", color="primary", id="submit-button"),
+                           href='/gallery')
+                        ]),
+                    dbc.Col([
+                        dcc.Link(
+                           dbc.Button("Sign up", color="primary", id="submit-button"),
+                           href='/signup')
+                        ]),
+                    ]),
+                
             ],
             width={"size": 6, "offset": 3},
-            className="mb-3",
-        ),
-        justify="center",
+            className="mb-3")
+        ],
+        style={"margin-top": "150px", "margin-bottom": "20px"}
     ),
 ])
-
+'''
 @app.callback(
     dash.dependencies.Output("login-result", "children"),
     [dash.dependencies.Input("submit-button", "n_clicks")],
@@ -50,8 +62,7 @@ def handle_login(n_clicks, username, password):
     else:
         return dbc.Alert("Invalid username or password", color="danger")
 
-app.layout = html.Div([login_layout, html.Div(id="login-result")])
+layout = html.Div([login_layout, html.Div(id="login-result")])
 
-if __name__ == "__main__":
-    app.run_server(debug=True)
+'''
 
