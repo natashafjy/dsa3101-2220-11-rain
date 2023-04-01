@@ -336,18 +336,6 @@ def update_end_address_dropdown(input_value):
         )
     ])
 
-def calculate_route(start_address, end_address):
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    directions_result = gmaps.directions(
-        start_address,
-        end_address,
-        mode='walking',
-        optimize_waypoints=True,
-        departure_time=datetime.now()
-    )
-    route = directions_result[0]['legs'][0]
-    return route
-
 
 def update_map(n_clicks, start_address, end_address):
     if not start_address or not end_address:
@@ -425,20 +413,21 @@ def tab_content(active_tab):
         #     id='submit-button',
         #     n_clicks=0),
         html.Div(
-            id='map-container',
-            children=[
-                html.Iframe(
-                    id='map-iframe',
-                    src=map_url,
-                    width='190%',
-                    height='655'
-            )],
-            style={
-                'width': '50%',
-                'float': 'left'}
+        id='map-container',
+        children=[
+            html.Iframe(
+                id='map-iframe',
+                src=map_url,
+                width='100%',
+                height='850rem'
             )
-        ]
+        ],
+        # style={
+        #     'width': '50%',
+        #     'float': 'left',
+        # }
     )
+])
         return map
 
     if active_tab == "map-tab-2":

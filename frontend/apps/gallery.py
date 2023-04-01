@@ -65,8 +65,8 @@ def build_sidebar_gallery():
                 options = [
                     {'label':'Routine 1', 'value':1},
                     {'label':'Routine 2', 'value':2}
-                ],
-                value = 0
+                ]
+                # ,value = 0
 
         
             ),
@@ -177,114 +177,87 @@ def build_sidebar_gallery():
 
 def build_map(): #Dongmen 3.29
     map = html.Div([
-    html.Div([
-        html.Label('Starting Address'),
-        dcc.Input(
-            id='start-address-input',
-            type='text',
-            placeholder='Enter starting address'
-        ),
-        html.Div(id='start-address-dropdown'),
-    ], style={'width': '45%', 'display': 'inline-block'}),
+    # html.Div([
+    #     html.Label('Starting Address'),
+    #     dcc.Input(
+    #         id='start-address-input',
+    #         type='text',
+    #         placeholder='Enter starting address'
+    #     ),
+    #     html.Div(id='start-address-dropdown'),
+    # ], style={'width': '45%', 'display': 'inline-block'}),
 
-    html.Div([
-        html.Label('Ending Address'),
-        dcc.Input(
-            id='end-address-input',
-            type='text',
-            placeholder='Enter ending address'
-        ),
-        html.Div(id='end-address-dropdown'),
-    ], style={'width': '45%', 'display': 'inline-block'}),
+    # html.Div([
+    #     html.Label('Ending Address'),
+    #     dcc.Input(
+    #         id='end-address-input',
+    #         type='text',
+    #         placeholder='Enter ending address'
+    #     ),
+    #     html.Div(id='end-address-dropdown'),
+    # ], style={'width': '45%', 'display': 'inline-block'}),
 
-    html.Button(
-        'Submit',
-        id='submit-button',
-        n_clicks=0
-    ),
+    # html.Button(
+    #     'Submit',
+    #     id='submit-button',
+    #     n_clicks=0
+    # ),
     html.Div(
         id='map-container',
         children=[
             html.Iframe(
                 id='map-iframe',
                 src=default_map_url,
-                width='195%',
-                height='695'
+                width='100%',
+                height='850rem'
             )
         ],
-        style={
-            'width': '50%',
-            'float': 'left',
-        }
+        # style={
+        #     'width': '50%',
+        #     'float': 'left',
+        # }
     )
 ])
     
     return map
 
-def get_address_options(input_value):
-    if not input_value:
-        return []
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    address_results = gmaps.places_autocomplete(
-        input_value,
-        components={'country': 'SG'}
-    )
-    return [{'label': result['description'], 'value': result['description']} for result in address_results]
+# def get_address_options(input_value):
+#     if not input_value:
+#         return []
+#     gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+#     address_results = gmaps.places_autocomplete(
+#         input_value,
+#         components={'country': 'SG'}
+#     )
+#     return [{'label': result['description'], 'value': result['description']} for result in address_results]
 
-@app.callback(
-    Output('start-address-dropdown', 'children'),
-    [Input('start-address-input', 'value')]
-)
-def update_start_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='start-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
+# @app.callback(
+#     Output('start-address-dropdown', 'children'),
+#     [Input('start-address-input', 'value')]
+# )
+# def update_start_address_dropdown(input_value):
+#     return html.Div([
+#         dcc.Dropdown(
+#             id='start-address-dropdown-list',
+#             options=get_address_options(input_value),
+#             value=""
 
-        )
-    ])
+#         )
+#     ])
 
-@app.callback(
-    Output('end-address-dropdown', 'children'),
-    [Input('end-address-input', 'value')]
-)
-def update_end_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='end-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
-        )
-    ])
+# @app.callback(
+#     Output('end-address-dropdown', 'children'),
+#     [Input('end-address-input', 'value')]
+# )
+# def update_end_address_dropdown(input_value):
+#     return html.Div([
+#         dcc.Dropdown(
+#             id='end-address-dropdown-list',
+#             options=get_address_options(input_value),
+#             value=""
+#         )
+#     ])
 
-def calculate_route(start_address, end_address):
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    directions_result = gmaps.directions(
-        start_address,
-        end_address,
-        mode='walking',
-        optimize_waypoints=True,
-        departure_time=datetime.now()
-    )
-    route = directions_result[0]['legs'][0]
-    return route
-
-@app.callback(
-    Output('map-iframe', 'src'),
-    [Input('submit-button', 'n_clicks')],
-    [State('start-address-dropdown-list', 'value'),
-     State('end-address-dropdown-list', 'value')]
-)
-def update_map(n_clicks, start_address, end_address):
-    if not start_address or not end_address:
-        # Return the default map URL if no addresses are entered
-        return default_map_url
-
-    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
-
-    return map_url
-#Dongmen
 
 #### Layout ####
 layout = dbc.Row([
@@ -320,6 +293,27 @@ layout = dbc.Row([
 # def update_dropdown_header(input_value):
 #     return input_value
 
+## callback to update map
+@app.callback(
+    Output('map-iframe', 'src'),
+    Input('routine-dropdown-3', 'value')
+)
+# def update_map(n_clicks, start_address, end_address):
+def update_map(selected_routine):
+    start_end_1 = ["UTown Residence", "103 West Coast Vale"]
+    start_end_2 = ["River Valley Road","Alexandra Canal Linear Park"]
+    address = [start_end_1, start_end_2]
+    if not selected_routine: # no routine selected
+        return default_map_url
+    else:
+        selected_routine = int(selected_routine)-1
+        start_address = address[selected_routine][0]
+        end_address = address[selected_routine][1]
+        map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+        return map_url
+
+
+## callback to update title, time, address
 @app.callback(
     Output('gallery-title', 'children'),
     Output('starting-point', 'children'),
@@ -342,7 +336,7 @@ def update_routine_info(selected_routine):
     end_time_value = ""
     end_time_disabled = False
     # if there is any routine selected
-    if selected_routine != 0:
+    if selected_routine:
         gallery_title = f'Current routine selected is {selected_routine}'
 
     if selected_routine == "1":
@@ -363,6 +357,7 @@ def update_routine_info(selected_routine):
 
     return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled
 
+# callback to update days of the week
 @app.callback(
     Output("day-of-week-div", 'children'),
     Input('routine-dropdown-3', 'value')
