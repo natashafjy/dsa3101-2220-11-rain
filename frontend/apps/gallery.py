@@ -216,69 +216,6 @@ def build_map(): #Dongmen 3.29
     
     return map
 
-def get_address_options(input_value):
-    if not input_value:
-        return []
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    address_results = gmaps.places_autocomplete(
-        input_value,
-        components={'country': 'SG'}
-    )
-    return [{'label': result['description'], 'value': result['description']} for result in address_results]
-
-@app.callback(
-    Output('start-address-dropdown', 'children'),
-    [Input('start-address-input', 'value')]
-)
-def update_start_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='start-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
-
-        )
-    ])
-
-@app.callback(
-    Output('end-address-dropdown', 'children'),
-    [Input('end-address-input', 'value')]
-)
-def update_end_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='end-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
-        )
-    ])
-
-def calculate_route(start_address, end_address):
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    directions_result = gmaps.directions(
-        start_address,
-        end_address,
-        mode='walking',
-        optimize_waypoints=True,
-        departure_time=datetime.now()
-    )
-    route = directions_result[0]['legs'][0]
-    return route
-
-@app.callback(
-    Output('map-iframe', 'src'),
-    [Input('start-address-dropdown-list', 'value'),
-     Input('end-address-dropdown-list', 'value')]
-)
-def update_map(start_address, end_address):
-    if not start_address or not end_address:
-        # Return the default map URL if no addresses are entered
-        return default_map_url
-
-    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
-
-    return map_url
-#Dongmen
 
 #### Layout ####
 layout = dbc.Row([
@@ -348,8 +285,8 @@ def update_routine_info(selected_routine):
         end_time_disabled = True
     
     if selected_routine == "2":
-        start_point = "238428, River Valley Road Junction"
-        end_point = "141080, Alexandra Canal Linear Park"
+        start_point = "141080, Alexandra Canal Linear Park"
+        end_point = "138600, UTown Residence"
         start_time_value = '18:00'
         start_time_disabled = True
         end_time_value = '18:30'
