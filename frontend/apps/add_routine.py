@@ -34,6 +34,8 @@ df = update_df()
 # tokens
 mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
 gmap_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
+# Default map URL to display on app load
+default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 
 # styles
 SIDEBAR_STYLE = {
@@ -62,7 +64,6 @@ def build_sidebar_add_routine():
         children = [
             html.H4("Set-up your running routine!"),
             html.Br(),
-            html.H5("Starting point"),
             dbc.Row([
                 
                     # postal-code input
@@ -72,20 +73,7 @@ def build_sidebar_add_routine():
                         dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
                         dbc.Label("start point"),
                         ]
-                    )   
-                
-                #dbc.Col([
-                #    # routine drop-down
-                #    dbc.DropdownMenu(
-                #        id = "routine-dropdown",
-                #        label = "routine",
-                #        children = [
-                #            dbc.DropdownMenuItem("Select a routine", header = True),
-                #            dbc.DropdownMenuItem("Routine 1"),
-                #            dbc.DropdownMenuItem("Routine 2")
-                #            ],
-                #        )
-                #])
+                    )
             ]),
 
         html.Br(),
@@ -93,7 +81,6 @@ def build_sidebar_add_routine():
         html.H5("ending point"),
 
         dbc.Row([
-                
                     # postal-code input
                 dbc.FormFloating(
                     id = "end-point",
@@ -102,19 +89,6 @@ def build_sidebar_add_routine():
                         dbc.Label("end point"),
                         ]
                     )   
-                
-                #dbc.Col([
-                #    # routine drop-down
-                #    dbc.DropdownMenu(
-                #        id = "routine-dropdown",
-                #        label = "routine",
-                #        children = [
-                #            dbc.DropdownMenuItem("Select a routine", header = True),
-                #            dbc.DropdownMenuItem("Routine 1"),
-                #            dbc.DropdownMenuItem("Routine 2")
-                #            ],
-                #        )
-                #])
             ]),
             
             html.Br(),
@@ -179,57 +153,92 @@ def build_main_add_routine():
     displaying google maps, default shows scale of Singapore,
     zoomed in to user's vicinity when postal code is keyed in. 
     '''
-    main_add_routine = html.Div(
-        id = "main-add-routine",
-        children = [
-        
-        ]
+    main_add_routine = html.Div([
+    html.Div([
+        dcc.Input(
+            id='start-address-input',
+            type='text',
+            placeholder='Enter starting address'
+        ),
+        html.Div(id='start-address-dropdown'),
+    ], style={'width': '45%', 'display': 'inline-block'}),
+
+    html.Div([
+        dcc.Input(
+            id='end-address-input',
+            type='text',
+            placeholder='Enter ending address'
+        ),
+        html.Div(id='end-address-dropdown'),
+    ], style={'width': '45%', 'display': 'inline-block'}),
+
+    html.Div(
+        id='map-container',
+        children=[
+            html.Iframe(
+                id='map-iframe',
+                src=default_map_url,
+                width='195%',
+                height='695'
+            )
+        ],
+        style={
+            'width': '50%',
+            'float': 'left',
+        }
     )
+])
     return main_add_routine
 
+def get_address_options(input_value):
+    if not input_value:
+        return []
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    address_results = gmaps.places_autocomplete(
+        input_value,
+        components={'country': 'SG'}
+    )
+    return [{'label': result['description'], 'value': result['description']} for result in address_results]
 
-def build_local_map(start_address, end_address):
-    '''
-    the map in tab 1 showing rainfall near the specific route
-    '''
+def update_start_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='start-address-dropdown-list',
+            options=get_address_options(input_value),
+            value=""
+
+        )
+    ])
+
+def update_end_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='end-address-dropdown-list',
+            options=get_address_options(input_value),
+            value=""
+        )
+    ])
+
+def calculate_route(start_address, end_address):
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    directions_result = gmaps.directions(
+        start_address,
+        end_address,
+        mode='walking',
+        optimize_waypoints=True,
+        departure_time=datetime.now()
+    )
+    route = directions_result[0]['legs'][0]
+    return route
+
+def update_map(start_address, end_address):
+    if not start_address or not end_address:
+        # Return the default map URL if no addresses are entered
+        return default_map_url
+
     map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
 
-    map = html.Div(
-        id = "map-div",
-        children = [
-            html.Iframe(
-                id='map',
-                srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
-                style={'height': '100%', 'width': '100%'}
-                )
-            ]
-       #,style = {"left":0}         
-    )
-    
-    return map
-
-def build_island_map():
-    '''
-    the island-wide dynamic map showing rainfall over Singapore for 30-min window,
-    returning px graph object
-    '''
-    px.set_mapbox_access_token(mapbox_token)
-    map = px.scatter_mapbox(data_frame = df, 
-                      #geojson = gj,
-                     lat = "latitude",
-                     lon = "longtitude",
-                     color = "probability",
-                     size = "precipitation", 
-                     animation_frame = "time",
-                     color_continuous_scale="blues",
-                     zoom = 10.5,
-                     height = 800
-                     # hover_name = ,
-                     )
-
-    # map.update_geos(fitbounds="locations")       
-    return map
-
+    return map_url
 #### Layout ####
 layout = dbc.Row([
     dbc.Col(
