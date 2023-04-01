@@ -208,7 +208,7 @@ def build_map(): #Dongmen 3.29
         id='map-container',
         children=[
             html.Iframe(
-                id='map-iframe',
+                id='map-iframe-gallery',
                 src=default_map_url,
                 width='100%',
                 height='850rem'
@@ -299,7 +299,7 @@ layout = dbc.Row([
 
 ## callback to update map
 @app.callback(
-    Output('map-iframe', 'src'),
+    Output('map-iframe-gallery', 'src'),
     Input('routine-dropdown-3', 'value')
 )
 # def update_map(n_clicks, start_address, end_address):
