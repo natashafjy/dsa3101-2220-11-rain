@@ -193,7 +193,7 @@ def build_main_add_routine():
 def update_start_address_options(search_value):
     if not search_value:
         raise PreventUpdate
-    return [o for o in get_address_options(search_value) if search_value in o["label"]]
+    return [o for o in get_address_options(search_value) if search_value.lower() in o["label"].lower()]
 
 ## callback to update *end* address dropdown when filled in
 @app.callback(
@@ -203,7 +203,7 @@ def update_start_address_options(search_value):
 def update_end_address_options(search_value):
     if not search_value:
         raise PreventUpdate
-    return [o for o in get_address_options(search_value) if search_value in o["label"]]
+    return [o for o in get_address_options(search_value) if search_value.lower() in o["label"].lower()]
 
 ##>> helper function for the 2 callbacks above: 
 def get_address_options(input_value):
