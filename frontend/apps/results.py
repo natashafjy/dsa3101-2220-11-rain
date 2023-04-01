@@ -163,7 +163,7 @@ def build_sidebar_run_model():
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
         children = [
-            html.H4("Choose running routine and get prediction!"),
+            html.H4("Prediction for routine 2:"),
             # drop-down to select routine
             #dbc.DropdownMenu(
             #            id = "routine-dropdown-2",
@@ -174,11 +174,24 @@ def build_sidebar_run_model():
             #                dbc.DropdownMenuItem("Routine 2")
             #                ],
             #            ),
+            html.Div([
+                dbc.Label('For which point?'),
+                dbc.RadioItems(
+                    options = [
+                        {"label":"start point","value":"start"},
+                        {"label":"end point", "value":"end"}
+                    ],
+                    value = [],
+                    id = "point-checklist",
+                    inline = True,
+                )
+            ]),
+
             html.Br(),
-            
+
             # precipitation bar plot
             dcc.Graph(id = 'precipitation-bar',
-                    figure = plot_precipitation(station_id  = 1),
+                    figure = plot_precipitation(station_id = 1),
                     config={'displayModeBar': False}),
             html.Br(),
 
@@ -241,23 +254,28 @@ def plot_precipitation(station_id):
                         color_continuous_scale="blues",
                         labels={'time':'minutes from now', 'precipitation':'precipitation in mm'},
                         height = 230,
-                        title = "precipitation in the next 30 minutes")
+                        title = "precipitation in the next 30 minutes",
+                        hover_data = {'time':False})
     # precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
-    precipitation_bar.update_layout(margin = dict(t=25, b=0))
+    precipitation_bar.update_layout(margin = dict(t=25, b=0),
+                                    hovermode = "x")
     return precipitation_bar
 
 def plot_wetness(station_id):
     '''
     station_id: int, the id of station for which the plot will be shown
     '''
-    df["dummy_col"] = np.repeat(1, df.shape[0])
+    df[" "] = np.repeat(1, df.shape[0])
     df["wetness"] = df["wetness"].astype(str)
-    wetness_plot = px.bar(df[df['station']==station_id], x = 'time', y = 'dummy_col', color ='wetness',
+    wetness_plot = px.bar(df[df['station']==station_id], x = 'time', y = ' ', color ='wetness',
                         labels = {'time':'minutes from now'},
                         height = 150,
+                        # hover_data= ['wetness', 'precipitation'],
                         title = "wetness level in the next 30 minutes",
-                        color_discrete_sequence=['#43CC29','#FFC008','#E52527'])
-    wetness_plot.update_layout(margin = dict(t=25, b=0))
+                        color_discrete_sequence=['#43CC29','#FFC008','#E52527'],
+                        hover_data = {" ":False, 'time': False})
+    wetness_plot.update_layout(margin = dict(t=25, b=0), 
+                               hovermode = 'x')
     return wetness_plot
 
 #def build_local_map(): deleted in 3.29 by Dongmen since collapse
@@ -276,7 +294,13 @@ def build_island_map():
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
-                     height = 800
+                     height = 800,
+                     hover_name = "station_name",
+                     hover_data = {"precipitation":':.2f', 
+                                   "probability": ':.2f',
+                                   'longtitude':False,
+                                   'latitude': False
+                                   }
                      # hover_name = ,
                      )
 
@@ -311,18 +335,6 @@ def update_end_address_dropdown(input_value):
             value=""
         )
     ])
-
-def calculate_route(start_address, end_address):
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    directions_result = gmaps.directions(
-        start_address,
-        end_address,
-        mode='walking',
-        optimize_waypoints=True,
-        departure_time=datetime.now()
-    )
-    route = directions_result[0]['legs'][0]
-    return route
 
 
 def update_map(n_clicks, start_address, end_address):
@@ -373,45 +385,49 @@ def update_output_div(input_value):
     Output("map-content", "children"), [Input("map-tabs", "active_tab")]
 )
 def tab_content(active_tab):
+    start_address = "River Valley Road"
+    end_address = "Alexandra Canal Linear Park"
+    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
     if active_tab == "map-tab-1": #Dongmen 3.29
         map = html.Div([
-        html.Div([
-            html.Label('Starting Address'),
-            dcc.Input(
-                id='start-address-input',
-                type='text',
-                placeholder='Enter starting address'
-        ),
-        html.Div(id='start-address-dropdown'),], 
-        style={'width': '45%', 'display': 'inline-block'}),
-        html.Div([
-            html.Label('Ending Address'),
-            dcc.Input(
-                id='end-address-input',
-                type='text',
-                placeholder='Enter ending address'
-        ),
-        html.Div(id='end-address-dropdown'),], 
-        style={'width': '45%', 'display': 'inline-block'}),
-        html.Button(
-            'Submit',
-            id='submit-button',
-            n_clicks=0),
+        # html.Div([
+        #     html.Label('Starting Address'),
+        #     dcc.Input(
+        #         id='start-address-input',
+        #         type='text',
+        #         placeholder='Enter starting address'
+        # ),
+        # html.Div(id='start-address-dropdown'),], 
+        # style={'width': '45%', 'display': 'inline-block'}),
+        # html.Div([
+        #     html.Label('Ending Address'),
+        #     dcc.Input(
+        #         id='end-address-input',
+        #         type='text',
+        #         placeholder='Enter ending address'
+        # ),
+        # html.Div(id='end-address-dropdown'),], 
+        # style={'width': '45%', 'display': 'inline-block'}),
+        # html.Button(
+        #     'Submit',
+        #     id='submit-button',
+        #     n_clicks=0),
         html.Div(
-            id='map-container',
-            children=[
-                html.Iframe(
-                    id='map-iframe',
-                    src=default_map_url,
-                    width='190%',
-                    height='655'
-            )],
-            style={
-                'width': '50%',
-                'float': 'left'}
+        id='map-container',
+        children=[
+            html.Iframe(
+                id='map-iframe',
+                src=map_url,
+                width='100%',
+                height='850rem'
             )
-        ]
+        ],
+        # style={
+        #     'width': '50%',
+        #     'float': 'left',
+        # }
     )
+])
         return map
 
     if active_tab == "map-tab-2":
@@ -420,3 +436,22 @@ def tab_content(active_tab):
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())
                         ])
+
+@app.callback(
+    Output(component_id='wetness-plot', component_property='figure'),
+    Output(component_id='precipitation-bar', component_property='figure'),
+    Input(component_id='point-checklist', component_property='value')
+)
+def update_output_div(point_selected):
+    '''
+    point_selected: "start" or "end"
+    '''
+    station_id = 0
+    if point_selected == "start":
+        station_id = 56
+    elif point_selected == "end":
+        station_id = 45
+    wetness_plot = plot_wetness(station_id)
+    precipitation_plot = plot_precipitation(station_id)
+
+    return wetness_plot, precipitation_plot
