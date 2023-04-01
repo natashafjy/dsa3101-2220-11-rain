@@ -3,6 +3,7 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
+from dash.exceptions import PreventUpdate
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -64,32 +65,45 @@ def build_sidebar_add_routine():
         children = [
             html.H4("Set-up your running routine!"),
             html.Br(),
-            dbc.Row([
-                
-                    # postal-code input
-                dbc.FormFloating(
-                    id = "start-point",
-                    children = [
-                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                        dbc.Label("start point"),
+            html.Div([
+                dbc.Label("choose start point of route"),
+                dcc.Dropdown(id='start-address-dropdown',
+                                     optionHeight=50)
+                # address input
+                # dbc.FormFloating(
+                #     id = "start-point",
+                #     children = [
+                        # dbc.Input(id = "start-address-input",
+                        #           inputmode = "text", 
+                        #           # placeholder="postal code", 
+                        #           size = "sm"),
+                        # 
+                        
                         ]
-                    )
-            ]),
+                    ),
 
-        html.Br(),
-        
-        html.H5("ending point"),
+            html.Br(),
 
-        dbc.Row([
-                    # postal-code input
-                dbc.FormFloating(
-                    id = "end-point",
-                    children = [
-                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                        dbc.Label("end point"),
-                        ]
-                    )   
-            ]),
+            html.Div([
+                dbc.Label("choose end point of route"),
+                dcc.Dropdown(id='end-address-dropdown',
+                            optionHeight=50)]),
+
+        # html.Div([
+        #         # postal-code input
+        #         dbc.FormFloating(
+        #             id = "end-point",
+        #             children = [
+        #                 dbc.Input(id = "end-address-input",
+        #                           inputmode = "text", 
+        #                           # placeholder="postal code", 
+        #                           size = "sm"),
+        #                 dbc.Label("choose end point of route"),
+        #                 ]
+        #             ),
+        #         html.Div(id='end-address-dropdown'),
+                   
+        #     ]),
             
             html.Br(),
             html.Br(),
@@ -153,43 +167,45 @@ def build_main_add_routine():
     displaying google maps, default shows scale of Singapore,
     zoomed in to user's vicinity when postal code is keyed in. 
     '''
-    main_add_routine = html.Div([
-    html.Div([
-        dcc.Input(
-            id='start-address-input',
-            type='text',
-            placeholder='Enter starting address'
-        ),
-        html.Div(id='start-address-dropdown'),
-    ], style={'width': '45%', 'display': 'inline-block'}),
-
-    html.Div([
-        dcc.Input(
-            id='end-address-input',
-            type='text',
-            placeholder='Enter ending address'
-        ),
-        html.Div(id='end-address-dropdown'),
-    ], style={'width': '45%', 'display': 'inline-block'}),
-
-    html.Div(
+    main_add_routine = html.Div(
         id='map-container',
         children=[
             html.Iframe(
                 id='map-iframe',
                 src=default_map_url,
-                width='195%',
-                height='695'
+                width='100%',
+                height='850rem'
             )
         ],
-        style={
-            'width': '50%',
-            'float': 'left',
-        }
+        # style={
+        #     'width': '50%',
+        #     'float': 'left',
+        # }
     )
-])
+
     return main_add_routine
 
+## callback to update *start* address dropdown when filled in
+@app.callback(
+    Output('start-address-dropdown', 'options'),
+    Input('start-address-dropdown', 'search_value')
+)
+def update_start_address_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    return [o for o in get_address_options(search_value) if search_value in o["label"]]
+
+## callback to update *end* address dropdown when filled in
+@app.callback(
+    Output('end-address-dropdown', 'options'),
+    Input('end-address-dropdown', 'search_value')
+)
+def update_end_address_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    return [o for o in get_address_options(search_value) if search_value in o["label"]]
+
+##>> helper function for the 2 callbacks above: 
 def get_address_options(input_value):
     if not input_value:
         return []
@@ -200,37 +216,13 @@ def get_address_options(input_value):
     )
     return [{'label': result['description'], 'value': result['description']} for result in address_results]
 
-def update_start_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='start-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
 
-        )
-    ])
-
-def update_end_address_dropdown(input_value):
-    return html.Div([
-        dcc.Dropdown(
-            id='end-address-dropdown-list',
-            options=get_address_options(input_value),
-            value=""
-        )
-    ])
-
-def calculate_route(start_address, end_address):
-    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
-    directions_result = gmaps.directions(
-        start_address,
-        end_address,
-        mode='walking',
-        optimize_waypoints=True,
-        departure_time=datetime.now()
-    )
-    route = directions_result[0]['legs'][0]
-    return route
-
+## callback to update Google map frame once start_address and end_address are filled
+@app.callback(
+    Output('map-iframe', 'src'),
+    [Input('start-address-dropdown', 'value'),
+     Input('end-address-dropdown', 'value')]
+)
 def update_map(start_address, end_address):
     if not start_address or not end_address:
         # Return the default map URL if no addresses are entered
@@ -239,6 +231,9 @@ def update_map(start_address, end_address):
     map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
 
     return map_url
+
+
+
 #### Layout ####
 layout = dbc.Row([
     dbc.Col(
