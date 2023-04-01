@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from app import app
-from apps import results, login, gallery, add_routine
+from apps import results, login, gallery, add_routine,signup
 
 
 app.layout = html.Div([
@@ -18,6 +18,10 @@ app.layout = html.Div([
 def display_page(pathname):
     if pathname == '/':
         return login.layout
+    elif pathname == '/login':
+        return login.layout
+    elif pathname == '/signup':
+        return signup.layout
     elif pathname == '/gallery':
         return gallery.layout
     elif pathname == '/results':
