@@ -3,20 +3,34 @@ from dash import html
 from dash import dcc
 import googlemaps
 from datetime import datetime
+from dash.dependencies import Input, Output, State
 
 app = dash.Dash(__name__)
 
+# Default map URL to display on app load
+default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
+
 app.layout = html.Div([
-    dcc.Input(
-        id='start-address-input',
-        type='text',
-        placeholder='Enter starting address'
-    ),
-    dcc.Input(
-        id='end-address-input',
-        type='text',
-        placeholder='Enter ending address'
-    ),
+    html.Div([
+        html.Label('Starting Address'),
+        dcc.Input(
+            id='start-address-input',
+            type='text',
+            placeholder='Enter starting address'
+        ),
+        html.Div(id='start-address-dropdown'),
+    ], style={'width': '48%', 'display': 'inline-block'}),
+
+    html.Div([
+        html.Label('Ending Address'),
+        dcc.Input(
+            id='end-address-input',
+            type='text',
+            placeholder='Enter ending address'
+        ),
+        html.Div(id='end-address-dropdown'),
+    ], style={'width': '48%', 'display': 'inline-block'}),
+
     html.Button(
         'Submit',
         id='submit-button',
@@ -24,14 +38,57 @@ app.layout = html.Div([
     ),
     html.Div(
         id='map-container',
-        children=[],
+        children=[
+            html.Iframe(
+                id='map-iframe',
+                src=default_map_url,
+                width='100%',
+                height='655'
+            )
+        ],
         style={
             'width': '50%',
-            'height': '800px',
             'float': 'left'
         }
     )
 ])
+
+def get_address_options(input_value):
+    if not input_value:
+        return []
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    address_results = gmaps.places_autocomplete(
+        input_value,
+        components={'country': 'SG'}
+    )
+    return [{'label': result['description'], 'value': result['description']} for result in address_results]
+
+
+@app.callback(
+    Output('start-address-dropdown', 'children'),
+    [Input('start-address-input', 'value')]
+)
+def update_start_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='start-address-dropdown-list',
+            options=get_address_options(input_value),
+            value=''
+        )
+    ])
+
+@app.callback(
+    Output('end-address-dropdown', 'children'),
+    [Input('end-address-input', 'value')]
+)
+def update_end_address_dropdown(input_value):
+    return html.Div([
+        dcc.Dropdown(
+            id='end-address-dropdown-list',
+            options=get_address_options(input_value),
+            value='',
+        )
+    ])
 
 def calculate_route(start_address, end_address):
     gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
@@ -46,26 +103,19 @@ def calculate_route(start_address, end_address):
     return route
 
 @app.callback(
-    dash.dependencies.Output('map-container', 'children'),
-    [dash.dependencies.Input('submit-button', 'n_clicks')],
-    [dash.dependencies.State('start-address-input', 'value'),
-     dash.dependencies.State('end-address-input', 'value')]
+    Output('map-iframe', 'src'),
+    [Input('submit-button', 'n_clicks')],
+    [State('start-address-dropdown-list', 'value'),
+     State('end-address-dropdown-list', 'value')]
 )
 def update_map(n_clicks, start_address, end_address):
     if not start_address or not end_address:
-        return []
+        # Return the default map URL if no addresses are entered
+        return default_map_url
 
     map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
 
-    return [
-        html.Iframe(
-            id='map',
-            srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
-            style={'height': '100%', 'width': '100%'}
-        )
-
-
-    ]
+    return map_url
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
