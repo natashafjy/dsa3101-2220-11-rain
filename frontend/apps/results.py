@@ -26,16 +26,16 @@ load_figure_template('MORPH')
 
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
-df_path = os.path.join(APP_PATH, os.path.join("../outputs", "data.csv"))
+df_path = os.path.join(APP_PATH, os.path.join("../../outputs", "data.csv"))
 def update_df():
     new_df = pd.read_csv(df_path)
     return new_df
 df = update_df()
 
 # setting up Singapore basemap
-map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
-with open(map_path,'r',encoding="UTF-8") as f: #3.29 encoding problem solved
-    sg_basemap = geojson.load(f)
+#map_path = os.path.join(APP_PATH, "Singapore_basemap.json")
+#with open(map_path,'r',encoding="UTF-8") as f: #3.29 encoding problem solved
+#    sg_basemap = geojson.load(f)
 
 
 
