@@ -3,12 +3,39 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
+from shared import user_dict
 ##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
+
+
+def before_verify():
+    return dbc.Row([
+        dbc.Col([
+            dbc.Button("Log in", color="primary", id="login-button", n_clicks=0),
+        ], width=2),
+        dbc.Col([
+            dcc.Link(
+                dbc.Button("Sign up", color="primary", id="signup-button"), href='/signup')
+        ], width=2)
+    ], justify='center')
+
+def verify_pass():
+    return dbc.Row([
+        dbc.Col([], width=2),
+        dbc.Col(
+            dcc.Link(
+                dbc.Button("Click me to go!", color="primary", id="login-button", n_clicks=0),
+                href='/gallery'
+            ),
+            width=4
+        ),
+        dbc.Col([], width=2)
+    ], justify='center')
+
 
 
 layout = html.Div([
     dbc.Row([
-        dbc.Col(html.H2("Welcome to <app-name>"),
+        dbc.Col(html.H2("Welcome to DryRun"),
                 width={"size": 6, "offset": 3}),
    
         dbc.Col(
@@ -29,21 +56,13 @@ layout = html.Div([
                 ),
                 html.Br(),
                 dbc.Row([
-                    dbc.Col([
-                        html.Div(id='button-container', children=[
-                            dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)
-                            ]),
-                        ]),
-                    dbc.Col([
-                        dcc.Link(
-                           dbc.Button("Sign up", color="primary", id="signup-button"),
-                           href='/signup')
+                    html.Div(id = 'login-sign',children=[
+                        before_verify()
                         ]),
                     html.Br(),
                     html.Br(),
                     html.Br(),
                     html.Div(id='query-results'),
-                    #dcc.Location(id='url', refresh=False)
                     ]),
                 
             ],
@@ -54,26 +73,24 @@ layout = html.Div([
     )
 ])
 
-#layout = html.Div([login_layout, html.Div(id="login-result")])
 
 @app.callback(
     #[Output('alert-container', 'children'),
     #    Output('url', 'pathname')],
 
     [Output('query-results','children'),
-    Output('button-container','children')
+    Output('login-sign','children')
     ],
     [Input('login-button', 'n_clicks')],
     [dash.dependencies.State('username', 'value'),
      dash.dependencies.State('password', 'value')]
 )
 def validate_login(n_clicks, username, password):
-    li = {'amy':'pw'}
     if username == '' or not username or password == '' or not password:
-            return  html.Div(children=''),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
-    if username not in li:
-        return html.Div(children=dbc.Alert('User name not exists!', color='danger', duration=None)),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
-    if li[username]==password:
-        return html.Div(children=dbc.Alert('Password check pass!', color='success', duration=None)),html.Div(children=[dcc.Link(dbc.Button("Click me to go!", color="primary",n_clicks=0),href='/gallery')])
+            return  html.Div(children=''),before_verify()
+    if username not in user_dict:
+        return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
+    if user_dict[username]==password:
+        return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
     else:
-        return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
+        return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
