@@ -9,11 +9,13 @@ url = "https://api.data.gov.sg/v1/environment/rainfall?date=2023-03-26"
 
 response = requests.get(url)
 
+# empty lists, should be of len=66 when filled
+station_names = []
+station_ids = []
 latitudes = []
 longitudes = []
 
-# updates the latitudes and longitudes of all stations into 2 lists
-def get_stations_lat_long():
+def parse_station_info():
     if response.status_code == 200:
         data = response.json()
         stations = data['metadata']['stations']
@@ -22,13 +24,15 @@ def get_stations_lat_long():
             loc_temp = stations[i]['location']
             latitudes.append(loc_temp['latitude'])
             longitudes.append(loc_temp['longitude'])
+            station_names.append(stations[i]['name'])
+            station_ids.append(stations[i]['id'])
+        
     else:
         print("Error in API request")
 
 
-get_stations_lat_long()
+parse_station_info()
 
-# print(len(latitudes)) in total: 66 measurement stations
 
 lat_by7 = np.repeat(latitudes, 7)
 long_by7 = np.repeat(longitudes, 7)
