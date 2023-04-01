@@ -197,11 +197,6 @@ def build_map(): #Dongmen 3.29
         html.Div(id='end-address-dropdown'),
     ], style={'width': '45%', 'display': 'inline-block'}),
 
-    html.Button(
-        'Submit',
-        id='submit-button',
-        n_clicks=0
-    ),
     html.Div(
         id='map-container',
         children=[
@@ -272,11 +267,10 @@ def calculate_route(start_address, end_address):
 
 @app.callback(
     Output('map-iframe', 'src'),
-    [Input('submit-button', 'n_clicks')],
-    [State('start-address-dropdown-list', 'value'),
-     State('end-address-dropdown-list', 'value')]
+    [Input('start-address-dropdown-list', 'value'),
+     Input('end-address-dropdown-list', 'value')]
 )
-def update_map(n_clicks, start_address, end_address):
+def update_map(start_address, end_address):
     if not start_address or not end_address:
         # Return the default map URL if no addresses are entered
         return default_map_url
