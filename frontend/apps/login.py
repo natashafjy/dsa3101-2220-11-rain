@@ -30,7 +30,9 @@ layout = html.Div([
                 html.Br(),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)
+                        html.Div(id='button-container', children=[
+                            dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)
+                            ]),
                         ]),
                     dbc.Col([
                         dcc.Link(
@@ -57,7 +59,10 @@ layout = html.Div([
 @app.callback(
     #[Output('alert-container', 'children'),
     #    Output('url', 'pathname')],
-    Output('query-results','children'),
+
+    [Output('query-results','children'),
+    Output('button-container','children')
+    ],
     [Input('login-button', 'n_clicks')],
     [dash.dependencies.State('username', 'value'),
      dash.dependencies.State('password', 'value')]
@@ -65,10 +70,10 @@ layout = html.Div([
 def validate_login(n_clicks, username, password):
     li = {'amy':'pw'}
     if username == '' or not username or password == '' or not password:
-            return  html.Div(children='')
+            return  html.Div(children=''),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
     if username not in li:
-        return html.Div(children=dbc.Alert('User name not exists!', color='danger', duration=None))
+        return html.Div(children=dbc.Alert('User name not exists!', color='danger', duration=None)),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
     if li[username]==password:
-        return html.Div(dcc.Link('Access Granted!', href='/gallery'))
+        return html.Div(children=dbc.Alert('Password check pass!', color='success', duration=None)),html.Div(children=[dcc.Link(dbc.Button("Click me to go!", color="primary",n_clicks=0),href='/gallery')])
     else:
-        return html.Div(children=dbc.Alert('Invalid password', color='danger', duration=None))
+        return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),html.Div(children=[dbc.Button("Log in", color="primary", id="login-button",n_clicks=0)])
