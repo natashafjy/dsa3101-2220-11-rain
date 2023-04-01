@@ -27,19 +27,9 @@ layout = html.Div([
                     className="mr-3",
                 ),
                 html.Br(),
-                dbc.Row([
-                    dbc.Col([
-                        dcc.Link(
-                           dbc.Button("Log in", color="primary", id="submit-button"),
-                           href='/gallery')
-                        ]),
-                    dbc.Col([
-                        dcc.Link(
-                           dbc.Button("Sign up", color="primary", id="submit-button"),
-                           href='/signup')
-                        ]),
-                    ]),
-                
+                dcc.Link(
+                           dbc.Button("Submit", color="primary", id="submit-button"),
+                           href='/login'),
             ],
             width={"size": 6, "offset": 3},
             className="mb-3")

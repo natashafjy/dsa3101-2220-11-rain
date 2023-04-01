@@ -21,14 +21,6 @@ import pathlib
 from app import app
 default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 
-# server = Flask(__name__)
-#app = dash.Dash(__name__, 
-#                external_stylesheets=[dbc.themes.MORPH],
-#                # use_pages = True,
-#                # server = server,
-#                meta_tags=[{'name': 'viewport',
-#                            'content': 'width=device-width, initial-scale=1.0'}],
-#                )
 
 load_figure_template('MORPH')
 
@@ -139,7 +131,12 @@ def build_sidebar_add_routine():
         style=SIDEBAR_STYLE
     )
     return sidebar_add_routine
+# tokens
+mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
+gmap_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
 
+
+# styles
 SIDEBAR_STYLE = {
     "position": "fixed",
     "top": 0,
@@ -158,26 +155,25 @@ def build_sidebar_run_model():
     '''
     Routine dropdown 
     # Img weather icon
-	Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
-	Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
-	Suggestion-bar -> to-do: adjust spacing in between
-	Span: (text) summary, tips etc 
-
+    Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
+    Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
+    Suggestion-bar -> to-do: adjust spacing in between
+    Span: (text) summary, tips etc 
     '''
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
         children = [
             html.H4("Choose running routine and get prediction!"),
             # drop-down to select routine
-            dbc.DropdownMenu(
-                        id = "routine-dropdown-2",
-                        label = "routine",
-                        children = [
-                            dbc.DropdownMenuItem("Select a routine", header = True),
-                            dbc.DropdownMenuItem("Routine 1"),
-                            dbc.DropdownMenuItem("Routine 2")
-                            ],
-                        ),
+            #dbc.DropdownMenu(
+            #            id = "routine-dropdown-2",
+            #            label = "routine",
+            #            children = [
+            #                dbc.DropdownMenuItem("Select a routine", header = True),
+            #                dbc.DropdownMenuItem("Routine 1"),
+            #                dbc.DropdownMenuItem("Routine 2")
+            #                ],
+            #            ),
             html.Br(),
             
             # precipitation bar plot
@@ -197,7 +193,10 @@ def build_sidebar_run_model():
             dbc.Badge("Caution, advised not to run!", color = "danger"),
             # tips card 
             dbc.Card([
-            ])
+            ]),
+            html.Br(),
+            html.Br(),
+            dcc.Link(dbc.Button("back to routine gallery", size = "md", style = {"left":"3rem"}),href='/gallery')
             
 
             # dbc.Table.from_dataframe(df)
@@ -207,19 +206,6 @@ def build_sidebar_run_model():
     ,style = SIDEBAR_STYLE
     )
     return sidebar_run_model
-
-def build_main_add_routine():
-    '''
-    displaying google maps, default shows scale of Singapore,
-    zoomed in to user's vicinity when postal code is keyed in. 
-    '''
-    main_add_routine = html.Div(
-        id = "main-add-routine",
-        children = [
-        
-        ]
-    )
-    return main_add_routine
 
 
 def build_main_run_model():
@@ -275,18 +261,18 @@ def plot_wetness(station_id):
     return wetness_plot
 
 #def build_local_map(): deleted in 3.29 by Dongmen since collapse
+
 def build_island_map():
     '''
     the island-wide dynamic map showing rainfall over Singapore for 30-min window,
     returning px graph object
     '''
-    px.set_mapbox_access_token(open(".mapbox_token").read())
+    px.set_mapbox_access_token(mapbox_token)
     map = px.scatter_mapbox(data_frame = df, 
-                      #geojson = gj,
                      lat = "latitude",
                      lon = "longtitude",
-                     color = "probability",
                      size = "precipitation",
+                     # size_max = 30,
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
@@ -427,7 +413,9 @@ def tab_content(active_tab):
         ]
     )
         return map
+
     if active_tab == "map-tab-2":
+        df = update_df()
         return html.Div(id = "map-tab-2-div",
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())

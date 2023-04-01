@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from app import app
-from apps import results, login, gallery
+from apps import results, login, gallery, add_routine,signup
 
 
 app.layout = html.Div([
@@ -16,14 +16,18 @@ app.layout = html.Div([
 # Update the index
 @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/login':
+    if pathname == '/':
         return login.layout
-    elif pathname == '/':
-    	return login.layout
+    elif pathname == '/login':
+        return login.layout
+    elif pathname == '/signup':
+        return signup.layout
     elif pathname == '/gallery':
         return gallery.layout
     elif pathname == '/results':
         return results.layout
+    elif pathname == '/add_routine':
+        return add_routine.layout
     else:
         return 'URL not found'
 
