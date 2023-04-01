@@ -354,8 +354,8 @@ def update_routine_info(selected_routine):
         end_time_disabled = True
     
     if selected_routine == "2":
-        start_point = "141080, Alexandra Canal Linear Park"
-        end_point = "138600, UTown Residence"
+        start_point = "238428, River Valley Road Junction"
+        end_point = "141080, Alexandra Canal Linear Park"
         start_time_value = '18:00'
         start_time_disabled = True
         end_time_value = '18:30'

@@ -163,7 +163,7 @@ def build_sidebar_run_model():
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
         children = [
-            html.H4("Choose running routine and get prediction!"),
+            html.H4("Prediction for routine 2:"),
             # drop-down to select routine
             #dbc.DropdownMenu(
             #            id = "routine-dropdown-2",
@@ -174,11 +174,24 @@ def build_sidebar_run_model():
             #                dbc.DropdownMenuItem("Routine 2")
             #                ],
             #            ),
+            html.Div([
+                dbc.Label('For which point?'),
+                dbc.RadioItems(
+                    options = [
+                        {"label":"start point","value":"start"},
+                        {"label":"end point", "value":"end"}
+                    ],
+                    value = [],
+                    id = "point-checklist",
+                    inline = True,
+                )
+            ]),
+
             html.Br(),
-            
+
             # precipitation bar plot
             dcc.Graph(id = 'precipitation-bar',
-                    figure = plot_precipitation(station_id  = 1),
+                    figure = plot_precipitation(station_id = 1),
                     config={'displayModeBar': False}),
             html.Br(),
 
@@ -243,21 +256,24 @@ def plot_precipitation(station_id):
                         height = 230,
                         title = "precipitation in the next 30 minutes")
     # precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
-    precipitation_bar.update_layout(margin = dict(t=25, b=0))
+    precipitation_bar.update_layout(margin = dict(t=25, b=0),
+                                    hovermode = "x")
     return precipitation_bar
 
 def plot_wetness(station_id):
     '''
     station_id: int, the id of station for which the plot will be shown
     '''
-    df["dummy_col"] = np.repeat(1, df.shape[0])
+    df[" "] = np.repeat(1, df.shape[0])
     df["wetness"] = df["wetness"].astype(str)
-    wetness_plot = px.bar(df[df['station']==station_id], x = 'time', y = 'dummy_col', color ='wetness',
+    wetness_plot = px.bar(df[df['station']==station_id], x = 'time', y = ' ', color ='wetness',
                         labels = {'time':'minutes from now'},
                         height = 150,
+                        # hover_data= ['wetness', 'precipitation'],
                         title = "wetness level in the next 30 minutes",
                         color_discrete_sequence=['#43CC29','#FFC008','#E52527'])
-    wetness_plot.update_layout(margin = dict(t=25, b=0))
+    wetness_plot.update_layout(margin = dict(t=25, b=0), 
+                               hovermode = 'x')
     return wetness_plot
 
 #def build_local_map(): deleted in 3.29 by Dongmen since collapse
@@ -420,3 +436,22 @@ def tab_content(active_tab):
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())
                         ])
+
+@app.callback(
+    Output(component_id='wetness-plot', component_property='figure'),
+    Output(component_id='precipitation-bar', component_property='figure'),
+    Input(component_id='point-checklist', component_property='value')
+)
+def update_output_div(point_selected):
+    '''
+    point_selected: "start" or "end"
+    '''
+    station_id = 0
+    if point_selected == "start":
+        station_id = 56
+    elif point_selected == "end":
+        station_id = 45
+    wetness_plot = plot_wetness(station_id)
+    precipitation_plot = plot_precipitation(station_id)
+
+    return wetness_plot, precipitation_plot
