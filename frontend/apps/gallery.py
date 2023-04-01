@@ -177,6 +177,7 @@ def build_sidebar_gallery():
 
 def build_map(): #Dongmen 3.29
     map = html.Div([
+
     # html.Div([
     #     html.Label('Starting Address'),
     #     dcc.Input(
@@ -202,6 +203,7 @@ def build_map(): #Dongmen 3.29
     #     id='submit-button',
     #     n_clicks=0
     # ),
+
     html.Div(
         id='map-container',
         children=[
@@ -220,6 +222,7 @@ def build_map(): #Dongmen 3.29
 ])
     
     return map
+
 
 # def get_address_options(input_value):
 #     if not input_value:
@@ -257,6 +260,7 @@ def build_map(): #Dongmen 3.29
 #             value=""
 #         )
 #     ])
+
 
 
 #### Layout ####

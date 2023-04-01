@@ -3,6 +3,7 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
+from dash.exceptions import PreventUpdate
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -34,6 +35,8 @@ df = update_df()
 # tokens
 mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
 gmap_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
+# Default map URL to display on app load
+default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 
 # styles
 SIDEBAR_STYLE = {
@@ -62,60 +65,45 @@ def build_sidebar_add_routine():
         children = [
             html.H4("Set-up your running routine!"),
             html.Br(),
-            html.H5("Starting point"),
-            dbc.Row([
-                
-                    # postal-code input
-                dbc.FormFloating(
-                    id = "start-point",
-                    children = [
-                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                        dbc.Label("start point"),
+            html.Div([
+                dbc.Label("choose start point of route"),
+                dcc.Dropdown(id='start-address-dropdown',
+                                     optionHeight=50)
+                # address input
+                # dbc.FormFloating(
+                #     id = "start-point",
+                #     children = [
+                        # dbc.Input(id = "start-address-input",
+                        #           inputmode = "text", 
+                        #           # placeholder="postal code", 
+                        #           size = "sm"),
+                        # 
+                        
                         ]
-                    )   
-                
-                #dbc.Col([
-                #    # routine drop-down
-                #    dbc.DropdownMenu(
-                #        id = "routine-dropdown",
-                #        label = "routine",
-                #        children = [
-                #            dbc.DropdownMenuItem("Select a routine", header = True),
-                #            dbc.DropdownMenuItem("Routine 1"),
-                #            dbc.DropdownMenuItem("Routine 2")
-                #            ],
-                #        )
-                #])
-            ]),
+                    ),
 
-        html.Br(),
-        
-        html.H5("ending point"),
+            html.Br(),
 
-        dbc.Row([
-                
-                    # postal-code input
-                dbc.FormFloating(
-                    id = "end-point",
-                    children = [
-                        dbc.Input(inputmode = "numeric", placeholder="postal code", size = "sm"),
-                        dbc.Label("end point"),
-                        ]
-                    )   
-                
-                #dbc.Col([
-                #    # routine drop-down
-                #    dbc.DropdownMenu(
-                #        id = "routine-dropdown",
-                #        label = "routine",
-                #        children = [
-                #            dbc.DropdownMenuItem("Select a routine", header = True),
-                #            dbc.DropdownMenuItem("Routine 1"),
-                #            dbc.DropdownMenuItem("Routine 2")
-                #            ],
-                #        )
-                #])
-            ]),
+            html.Div([
+                dbc.Label("choose end point of route"),
+                dcc.Dropdown(id='end-address-dropdown',
+                            optionHeight=50)]),
+
+        # html.Div([
+        #         # postal-code input
+        #         dbc.FormFloating(
+        #             id = "end-point",
+        #             children = [
+        #                 dbc.Input(id = "end-address-input",
+        #                           inputmode = "text", 
+        #                           # placeholder="postal code", 
+        #                           size = "sm"),
+        #                 dbc.Label("choose end point of route"),
+        #                 ]
+        #             ),
+        #         html.Div(id='end-address-dropdown'),
+                   
+        #     ]),
             
             html.Br(),
             html.Br(),
@@ -180,55 +168,71 @@ def build_main_add_routine():
     zoomed in to user's vicinity when postal code is keyed in. 
     '''
     main_add_routine = html.Div(
-        id = "main-add-routine",
-        children = [
-        
-        ]
+        id='map-container',
+        children=[
+            html.Iframe(
+                id='map-iframe',
+                src=default_map_url,
+                width='100%',
+                height='850rem'
+            )
+        ],
+        # style={
+        #     'width': '50%',
+        #     'float': 'left',
+        # }
     )
+
     return main_add_routine
 
+## callback to update *start* address dropdown when filled in
+@app.callback(
+    Output('start-address-dropdown', 'options'),
+    Input('start-address-dropdown', 'search_value')
+)
+def update_start_address_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    return [o for o in get_address_options(search_value) if search_value.lower() in o["label"].lower()]
 
-def build_local_map(start_address, end_address):
-    '''
-    the map in tab 1 showing rainfall near the specific route
-    '''
+## callback to update *end* address dropdown when filled in
+@app.callback(
+    Output('end-address-dropdown', 'options'),
+    Input('end-address-dropdown', 'search_value')
+)
+def update_end_address_options(search_value):
+    if not search_value:
+        raise PreventUpdate
+    return [o for o in get_address_options(search_value) if search_value.lower() in o["label"].lower()]
+
+##>> helper function for the 2 callbacks above: 
+def get_address_options(input_value):
+    if not input_value:
+        return []
+    gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+    address_results = gmaps.places_autocomplete(
+        input_value,
+        components={'country': 'SG'}
+    )
+    return [{'label': result['description'], 'value': result['description']} for result in address_results]
+
+
+## callback to update Google map frame once start_address and end_address are filled
+@app.callback(
+    Output('map-iframe', 'src'),
+    [Input('start-address-dropdown', 'value'),
+     Input('end-address-dropdown', 'value')]
+)
+def update_map(start_address, end_address):
+    if not start_address or not end_address:
+        # Return the default map URL if no addresses are entered
+        return default_map_url
+
     map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
 
-    map = html.Div(
-        id = "map-div",
-        children = [
-            html.Iframe(
-                id='map',
-                srcDoc=f'<iframe src="{map_url}" width="100%" height="100%" style="border:0"></iframe>',
-                style={'height': '100%', 'width': '100%'}
-                )
-            ]
-       #,style = {"left":0}         
-    )
-    
-    return map
+    return map_url
 
-def build_island_map():
-    '''
-    the island-wide dynamic map showing rainfall over Singapore for 30-min window,
-    returning px graph object
-    '''
-    px.set_mapbox_access_token(mapbox_token)
-    map = px.scatter_mapbox(data_frame = df, 
-                      #geojson = gj,
-                     lat = "latitude",
-                     lon = "longtitude",
-                     color = "probability",
-                     size = "precipitation", 
-                     animation_frame = "time",
-                     color_continuous_scale="blues",
-                     zoom = 10.5,
-                     height = 800
-                     # hover_name = ,
-                     )
 
-    # map.update_geos(fitbounds="locations")       
-    return map
 
 #### Layout ####
 layout = dbc.Row([
