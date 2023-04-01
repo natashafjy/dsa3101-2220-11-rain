@@ -254,7 +254,8 @@ def plot_precipitation(station_id):
                         color_continuous_scale="blues",
                         labels={'time':'minutes from now', 'precipitation':'precipitation in mm'},
                         height = 230,
-                        title = "precipitation in the next 30 minutes")
+                        title = "precipitation in the next 30 minutes",
+                        hover_data = {'time':False})
     # precipitation_bar.update_layout(paper_bgcolor = '#f8f9fa')
     precipitation_bar.update_layout(margin = dict(t=25, b=0),
                                     hovermode = "x")
@@ -271,7 +272,8 @@ def plot_wetness(station_id):
                         height = 150,
                         # hover_data= ['wetness', 'precipitation'],
                         title = "wetness level in the next 30 minutes",
-                        color_discrete_sequence=['#43CC29','#FFC008','#E52527'])
+                        color_discrete_sequence=['#43CC29','#FFC008','#E52527'],
+                        hover_data = {" ":False, 'time': False})
     wetness_plot.update_layout(margin = dict(t=25, b=0), 
                                hovermode = 'x')
     return wetness_plot
@@ -292,7 +294,13 @@ def build_island_map():
                      animation_frame = "time",
                      color_continuous_scale="blues",
                      zoom = 10.5,
-                     height = 800
+                     height = 800,
+                     hover_name = "station_name",
+                     hover_data = {"precipitation":':.2f', 
+                                   "probability": ':.2f',
+                                   'longtitude':False,
+                                   'latitude': False
+                                   }
                      # hover_name = ,
                      )
 
