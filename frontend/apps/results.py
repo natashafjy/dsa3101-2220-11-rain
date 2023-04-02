@@ -203,7 +203,9 @@ def build_sidebar_run_model():
             
             html.Img(id = "weather-icon", src = app.get_asset_url('rainy.png'), style = {'display':'inline', 'height':'10%'}),
             # suggestion bar
-            dbc.Badge("Caution, advised not to run!", color = "danger"),
+            html.Div(id = 'suggestion-div',
+                     style = {'display':'inline-block', 'margin':'20px'}),
+            
             # tips card 
             dbc.Card([
             ]),
@@ -440,6 +442,8 @@ def tab_content(active_tab):
 @app.callback(
     Output(component_id='wetness-plot', component_property='figure'),
     Output(component_id='precipitation-bar', component_property='figure'),
+    Output(component_id = 'weather-icon', component_property = 'src'),
+    Output(component_id = 'suggestion-div', component_property = 'children'),
     Input(component_id='point-checklist', component_property='value')
 )
 def update_output_div(point_selected):
@@ -447,11 +451,17 @@ def update_output_div(point_selected):
     point_selected: "start" or "end"
     '''
     station_id = 0
+    src = app.get_asset_url('humidity-2.png')
+    suggestion_div = dbc.Badge("overall suggestion", color = "primary")
     if point_selected == "start":
         station_id = 56
+        src = app.get_asset_url('windstorm.png')
+        suggestion_div = dbc.Badge("Caution, advised not to run!", color = "danger")
     elif point_selected == "end":
         station_id = 45
+        src = app.get_asset_url('rainy.png')
+        suggestion_div = dbc.Badge("Caution, advised not to run!", color = "danger")
     wetness_plot = plot_wetness(station_id)
     precipitation_plot = plot_precipitation(station_id)
 
-    return wetness_plot, precipitation_plot
+    return wetness_plot, precipitation_plot, src, suggestion_div
