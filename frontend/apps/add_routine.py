@@ -20,7 +20,7 @@ import os
 import pathlib
 
 from app import app
-
+from shared import routine_dict, generate_routine_options
 
 load_figure_template('MORPH')
 
@@ -136,15 +136,15 @@ def build_sidebar_add_routine():
                 dbc.Label("which days of the week?"),
                 dbc.Checklist(
                     options=[
-                        {"label": "Mon", "value": "M"},
-                        {"label": "Tue", "value": "T"},
-                        {"label": "Wed", "value": "W"},
-                        {"label": "Thu", "value": "Th"},
-                        {"label": "Fri", "value": "F"},
-                        {"label": "Sat", "value": "Sa"},
-                        {"label": "Sun", "value": "Su"},
+                        {"label": "Mon", "value": "Mon "},
+                        {"label": "Tue", "value": "Tue "},
+                        {"label": "Wed", "value": "Wed "},
+                        {"label": "Thu", "value": "Thu "},
+                        {"label": "Fri", "value": "Fri "},
+                        {"label": "Sat", "value": "Sat "},
+                        {"label": "Sun", "value": "Sun "},
                     ],
-                    value=["M", "T", "W", "Th", "F", "Sa", "Su"],
+                    value=["Mon ", "Tue ", "Wed ", "Thu ", "Fri ", "Sat ", "Sun "],
                     id="day-of-week-checklist",
                     inline=True
                 )
@@ -153,8 +153,10 @@ def build_sidebar_add_routine():
             html.Br(),
 
             # save button
-            dcc.Link(dbc.Button("save", size = "md", style = {"left":"7rem"}),href='/gallery')
-            
+            html.Div(id='save-action',children = dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"})),
+            html.Br(),
+            html.Br(),
+            html.Div(id='save-results')
             
         ],
         style=SIDEBAR_STYLE
@@ -231,6 +233,44 @@ def update_map(start_address, end_address):
     map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
 
     return map_url
+
+#callback to update routine_list
+@app.callback(
+    #[Output('alert-container', 'children'),
+    #    Output('url', 'pathname')],
+
+    [
+    Output('save-results','children'),
+    Output('save-action','children'),
+    Output('shared-store', 'data')
+    ],
+    [Input('save-button', 'n_clicks')],
+    [dash.dependencies.State('start-address-dropdown', 'value'),
+     dash.dependencies.State('end-address-dropdown', 'value'),
+     dash.dependencies.State('start-time-input', 'value'),
+     dash.dependencies.State('end-time-input', 'value'),
+     dash.dependencies.State('day-of-week-checklist', 'value')]
+)
+def save_routine(n_clicks, start_address, end_address, start_time, end_time, days_of_week):
+    global routine_dict
+    if n_clicks == 0:
+        raise PreventUpdate
+
+    if not (start_address and end_address and start_time and end_time and days_of_week):
+        return html.Div(children=dbc.Alert('Please fill in all the inputs!', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"}),"routine_not_saved"
+
+    length = len(routine_dict)
+    routine_num = 'routine' + str(length + 1)
+
+    routine_dict[routine_num] = {
+        'start_point': start_address,
+        'end_point': end_address,
+        'start_time_value': start_time,
+        'end_time_value': end_time,
+        'days_of_week': days_of_week
+    }
+
+    return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery'),"routine_saved"
 
 
 
