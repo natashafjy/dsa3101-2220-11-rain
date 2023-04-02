@@ -18,7 +18,6 @@ import os
 import pathlib
 
 from app import app
-from shared import routine_dict, generate_routine_options
 
 
 load_figure_template('MORPH')
@@ -45,8 +44,6 @@ SIDEBAR_STYLE = {
     # "color" : "#4A6FA5"
 }
 
-
-
 def build_sidebar_gallery():
     '''
     Routine dropdown 
@@ -65,7 +62,10 @@ def build_sidebar_gallery():
             dbc.Select(
                 id = "routine-dropdown-3",
                # value = 'select a routine',
-                options = generate_routine_options()                
+                options = [
+                    {'label':'Routine 1', 'value':1},
+                    {'label':'Routine 2', 'value':2}
+                ]
                 # ,value = 0
 
         
@@ -224,7 +224,42 @@ def build_map(): #Dongmen 3.29
     return map
 
 
+# def get_address_options(input_value):
+#     if not input_value:
+#         return []
+#     gmaps = googlemaps.Client(key="AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8")
+#     address_results = gmaps.places_autocomplete(
+#         input_value,
+#         components={'country': 'SG'}
+#     )
+#     return [{'label': result['description'], 'value': result['description']} for result in address_results]
 
+# @app.callback(
+#     Output('start-address-dropdown', 'children'),
+#     [Input('start-address-input', 'value')]
+# )
+# def update_start_address_dropdown(input_value):
+#     return html.Div([
+#         dcc.Dropdown(
+#             id='start-address-dropdown-list',
+#             options=get_address_options(input_value),
+#             value=""
+
+#         )
+#     ])
+
+# @app.callback(
+#     Output('end-address-dropdown', 'children'),
+#     [Input('end-address-input', 'value')]
+# )
+# def update_end_address_dropdown(input_value):
+#     return html.Div([
+#         dcc.Dropdown(
+#             id='end-address-dropdown-list',
+#             options=get_address_options(input_value),
+#             value=""
+#         )
+#     ])
 
 
 
@@ -247,13 +282,22 @@ layout = dbc.Row([
             id="interval-component",
             interval=2 * 1000,  # in milliseconds, 2 sec
             n_intervals=50,  # number of times the interval has passed, start at batch 50.
-            disabled=False, # created for backend model update, now switched off
+            disabled=True, # created for backend model update, now switched off
         )
     ]
 )
     
 
+#### callback ####
 
+# @app.callback(
+#     Output(component_id='routine-dropdown-3', component_property='value'),
+#     Input(component_id='routine-dropdown-3', component_property='label')
+# )
+# def update_dropdown_header(input_value):
+#     return input_value
+
+## callback to update map
 @app.callback(
     Output('map-iframe-gallery', 'src'),
     Input('routine-dropdown-3', 'value')
@@ -282,14 +326,12 @@ def update_map(selected_routine):
     Output('start-time-input', 'disabled'),
     Output('end-time-input', 'value'),
     Output('end-time-input', 'disabled'),
-    Output("day-of-week-div", 'children'),
     Input('routine-dropdown-3', 'value')
 )
 def update_routine_info(selected_routine):
     '''
     selected_routine: int, 1,2
     '''
-    global routine_dict
     gallery_title = "Choose an existing routine or add a new routine!"
     start_point = " "
     end_point = " "
@@ -297,25 +339,29 @@ def update_routine_info(selected_routine):
     start_time_disabled = False
     end_time_value = ""
     end_time_disabled = False
-    days_of_week = ""
-
     # if there is any routine selected
     if selected_routine:
-        routine_num = 'routine' + str(selected_routine)
         gallery_title = f'Current routine selected is {selected_routine}'
-        start_point = routine_dict[routine_num]['start_point']
-        end_point = routine_dict[routine_num]['end_point']
-        start_time_value = routine_dict[routine_num]['start_time_value']
+
+    if selected_routine == "1":
+        start_point = "138600, UTown Residence"
+        end_point = "126754, 103 West Coast Vale"
+        start_time_value = '12:00'
         start_time_disabled = True
-        end_time_value = routine_dict[routine_num]['end_time_value']
+        end_time_value = '12:30'
         end_time_disabled = True
-        days_of_week = routine_dict[routine_num]['days_of_week']
+    
+    if selected_routine == "2":
+        start_point = "238428, River Valley Road Junction"
+        end_point = "141080, Alexandra Canal Linear Park"
+        start_time_value = '18:00'
+        start_time_disabled = True
+        end_time_value = '18:30'
+        end_time_disabled = True
 
-
-    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week
+    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled
 
 # callback to update days of the week
-'''
 @app.callback(
     Output("day-of-week-div", 'children'),
     Input('routine-dropdown-3', 'value')
@@ -325,14 +371,4 @@ def update_weekday_button_group_info(selected_routine):
         return "Tuesday, Thursday, Friday"
     if selected_routine == "2":
         return "Monday, Wednesday, Friday"
-'''
-
-@app.callback(
-    Output('routine-dropdown-3', 'options'),
-    Input('shared-store', 'data')
-)
-def update_routine_options(data):
-    if data == "routine_saved":
-        return generate_routine_options()
-    return dash.no_update
 
