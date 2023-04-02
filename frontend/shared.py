@@ -5,13 +5,7 @@ routine_dict = {
 "end_point":"126754, 103 West Coast Vale",
 "start_time_value":'12:00',
 "end_time_value":'12:30',
-'days_of_week':'Mon Tue Wed'},
-'routine2':{
-'start_point':"141080, Alexandra Canal Linear Park",
-"end_point":"138600, UTown Residence",
-"start_time_value":'18:00',
-"end_time_value":'18:30',
-'days_of_week':'Mon Tue Wed '}
+'days_of_week':'Mon Tue Wed'}
 }
 
 def generate_routine_options():
