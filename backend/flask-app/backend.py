@@ -1,5 +1,5 @@
 from flask import Flask
-
+from get_rain_probability import *
 
 app = Flask(__name__)
 
@@ -29,5 +29,16 @@ def make_prediction():
     '''
     To be implemented
     '''
-    pass
+    # 1. get stations near points in routine
+
+    # 2. retrieve data from API and format data to fit into model
+
+    # 3. use model to generate predictions
+    # predicted_data = pd.DataFrame() # to edit
+
+    # generate probabilities
+    # points_of_interest = []] # get points from routine
+    result = get_rain_probability(predicted_data, points_of_interest)
+
+    return result
 
