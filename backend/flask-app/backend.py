@@ -1,4 +1,5 @@
 from flask import Flask
+import xgboost as xgb
 from get_rain_probability import *
 
 app = Flask(__name__)
@@ -34,10 +35,14 @@ def make_prediction():
     # 2. retrieve data from API and format data to fit into model
 
     # 3. use model to generate predictions
-    # predicted_data = pd.DataFrame() # to edit
+    xgboost_model = xgb.XGBRegressor()
+    xgboost_model.load_model("xgboost_model.json")
+    predicted_values = xgboost_model.predict(formatted_data) # replace with variable name of formatted data from (2)
+    stations = [] # replace with list of stations
+    predicted_data = pd.DataFrame(list(zip(stations, predicted_values)), columns=["stations", "predicted_values"])
 
-    # generate probabilities
-    # points_of_interest = []] # get points from routine
+    # 4. generate probabilities
+    # points_of_interest = [] # get points from routine
     result = get_rain_probability(predicted_data, points_of_interest)
 
     return result
