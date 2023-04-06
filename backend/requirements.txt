@@ -47,3 +47,4 @@ wcwidth==0.2.6
 matplotlib==3.7.1
 seaborn==0.12.2
 Flask==2.2.3
+mysql-connector-python==8.0.32
