@@ -1,7 +1,8 @@
 CREATE TABLE USERS (
         u_id int AUTO_INCREMENT PRIMARY KEY,
         username varchar(255),
-        password varchar(255)
+        password varchar(255),
+        UNIQUE KEY user_password (username, password)
         );
 
 CREATE TABLE ROUTINES (
@@ -20,5 +21,6 @@ CREATE TABLE ROUTINES (
       pin5_lat varchar(255),
       pin6_long varchar(255),
       pin6_lat varchar(255),
-      FOREIGN KEY (u_id) REFERENCES USERS(u_id) ON DELETE CASCADE 
+      UNIQUE KEY unique_user_routine (u_id, routine_id),
+      FOREIGN KEY (u_id) REFERENCES USERS(u_id) ON DELETE CASCADE
       );
