@@ -19,6 +19,7 @@ import os
 import pathlib
 
 from app import app
+from shared import routine_dict, generate_routine_options
 default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 
 
@@ -163,7 +164,8 @@ def build_sidebar_run_model():
     sidebar_run_model = html.Div(
         id = "sidebar-run-model",
         children = [
-            html.H4("Prediction for routine 2:"),
+            html.H4(id = 'results-header',
+                    children = ["no routine selected"]),
             # drop-down to select routine
             #dbc.DropdownMenu(
             #            id = "routine-dropdown-2",
@@ -375,46 +377,25 @@ layout = dbc.Row([
     
 
 #### callback ####
-'''
+
+## callback to switch map views with selected tab
+## * for the routine chosen on the gallery page 
 @app.callback(
-    Output(component_id='my-output', component_property='children'),
-    Input(component_id='my-input', component_property='value')
+    Output("map-content", "children"), 
+    Output('results-header', 'children'),
+    Input("map-tabs", "active_tab"),
+    Input('routine-selected-store', 'data')
 )
-def update_output_div(input_value):
-    return f'Output: {input_value}'
-'''
-@app.callback(
-    Output("map-content", "children"), [Input("map-tabs", "active_tab")]
-)
-def tab_content(active_tab):
-    start_address = "River Valley Road"
-    end_address = "Alexandra Canal Linear Park"
-    map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
-    if active_tab == "map-tab-1": #Dongmen 3.29
-        map = html.Div([
-        # html.Div([
-        #     html.Label('Starting Address'),
-        #     dcc.Input(
-        #         id='start-address-input',
-        #         type='text',
-        #         placeholder='Enter starting address'
-        # ),
-        # html.Div(id='start-address-dropdown'),], 
-        # style={'width': '45%', 'display': 'inline-block'}),
-        # html.Div([
-        #     html.Label('Ending Address'),
-        #     dcc.Input(
-        #         id='end-address-input',
-        #         type='text',
-        #         placeholder='Enter ending address'
-        # ),
-        # html.Div(id='end-address-dropdown'),], 
-        # style={'width': '45%', 'display': 'inline-block'}),
-        # html.Button(
-        #     'Submit',
-        #     id='submit-button',
-        #     n_clicks=0),
-        html.Div(
+
+def tab_content(active_tab, routine_num):
+    global routine_dict
+    header = f"Current routine predicted: {routine_num[-1]}"
+    if routine_num != "no routine selected":
+        start_address = routine_dict[routine_num]['start_point']
+        end_address = routine_dict[routine_num]['end_point']
+        map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+    if active_tab == "map-tab-1": 
+        map = html.Div(
         id='map-container',
         children=[
             html.Iframe(
@@ -424,21 +405,18 @@ def tab_content(active_tab):
                 height='850rem'
             )
         ],
-        # style={
-        #     'width': '50%',
-        #     'float': 'left',
-        # }
     )
-])
-        return map
+
+        return map, header
 
     if active_tab == "map-tab-2":
         df = update_df()
         return html.Div(id = "map-tab-2-div",
                         children = [
                             dcc.Graph(id="island-map", figure=build_island_map())
-                        ])
+                        ]), header
 
+## callback to update sidebar graphs for selected point
 @app.callback(
     Output(component_id='wetness-plot', component_property='figure'),
     Output(component_id='precipitation-bar', component_property='figure'),
@@ -465,3 +443,5 @@ def update_output_div(point_selected):
     precipitation_plot = plot_precipitation(station_id)
 
     return wetness_plot, precipitation_plot, src, suggestion_div
+
+

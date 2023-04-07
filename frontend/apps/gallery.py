@@ -67,8 +67,6 @@ def build_sidebar_gallery():
                # value = 'select a routine',
                 options = generate_routine_options()                
                 # ,value = 0
-
-        
             ),
             # dbc.DropdownMenu(
             #             id = "routine-dropdown-2",
@@ -258,19 +256,18 @@ layout = dbc.Row([
     Output('map-iframe-gallery', 'src'),
     Input('routine-dropdown-3', 'value')
 )
-# def update_map(n_clicks, start_address, end_address):
+
+## callback to update route map
 def update_map(selected_routine):
-    start_end_1 = ["UTown Residence", "103 West Coast Vale"]
-    start_end_2 = ["River Valley Road","Alexandra Canal Linear Park"]
-    address = [start_end_1, start_end_2]
-    if not selected_routine: # no routine selected
-        return default_map_url
-    else:
-        selected_routine = int(selected_routine)-1
-        start_address = address[selected_routine][0]
-        end_address = address[selected_routine][1]
-        map_url = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
-        return map_url
+    global routine_dict
+    src = default_map_url
+    if selected_routine: # if there is any routine selected
+        routine_num = 'routine' + str(selected_routine)
+        start_address = routine_dict[routine_num]['start_point']
+        end_address = routine_dict[routine_num]['end_point']
+        src = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
+    return src
+    
 
 
 ## callback to update title, time, address
@@ -314,19 +311,7 @@ def update_routine_info(selected_routine):
 
     return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week
 
-# callback to update days of the week
-'''
-@app.callback(
-    Output("day-of-week-div", 'children'),
-    Input('routine-dropdown-3', 'value')
-)
-def update_weekday_button_group_info(selected_routine):
-    if selected_routine == "1":
-        return "Tuesday, Thursday, Friday"
-    if selected_routine == "2":
-        return "Monday, Wednesday, Friday"
-'''
-
+## callback to update routine options in the dropdown menu
 @app.callback(
     Output('routine-dropdown-3', 'options'),
     Input('shared-store', 'data')
@@ -335,4 +320,16 @@ def update_routine_options(data):
     if data == "routine_saved":
         return generate_routine_options()
     return dash.no_update
+
+## callback to save the choice of routine, for use in results page
+@app.callback(
+    Output('routine-selected-store', 'data'),
+    Input('routine-dropdown-3', 'value')
+)
+def update_store_routine(selected_routine):
+    if selected_routine:
+        routine_num = 'routine' + str(selected_routine)
+        return routine_num
+    else:
+        return "no routine selected"
 
