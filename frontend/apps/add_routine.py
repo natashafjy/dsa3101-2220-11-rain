@@ -53,12 +53,7 @@ SIDEBAR_STYLE = {
 
 def build_sidebar_add_routine():
     '''
-    routine drop down
-    Postal-code input -> to do: check format is correct
-    H4: Running time
-    Time input -> to do: set step to 5-min
-    Which-day-of-week select 
-    Save button -> to do: how to set horizontal align to center (should be in style?)
+    end-time > start-time
     '''
     sidebar_add_routine = html.Div(
         id = "sidebar-add-routine",
@@ -69,16 +64,6 @@ def build_sidebar_add_routine():
                 dbc.Label("choose start point of route"),
                 dcc.Dropdown(id='start-address-dropdown',
                                      optionHeight=50)
-                # address input
-                # dbc.FormFloating(
-                #     id = "start-point",
-                #     children = [
-                        # dbc.Input(id = "start-address-input",
-                        #           inputmode = "text", 
-                        #           # placeholder="postal code", 
-                        #           size = "sm"),
-                        # 
-                        
                         ]
                     ),
 
@@ -88,46 +73,31 @@ def build_sidebar_add_routine():
                 dbc.Label("choose end point of route"),
                 dcc.Dropdown(id='end-address-dropdown',
                             optionHeight=50)]),
-
-        # html.Div([
-        #         # postal-code input
-        #         dbc.FormFloating(
-        #             id = "end-point",
-        #             children = [
-        #                 dbc.Input(id = "end-address-input",
-        #                           inputmode = "text", 
-        #                           # placeholder="postal code", 
-        #                           size = "sm"),
-        #                 dbc.Label("choose end point of route"),
-        #                 ]
-        #             ),
-        #         html.Div(id='end-address-dropdown'),
-                   
-        #     ]),
-            
-            html.Br(),
             html.Br(),
             # running time input
             html.H5("Running Time"),
             dbc.Row([
-                dbc.Col([
+                # start-time input
                     html.Div([
                         dbc.Label("start"),
                         dbc.Input(
                             id = "start-time-input",
-                            type = "Time")
-                        # ,dbc.FormText("starting time")
-                    ])
-                ]),
-                dbc.Col(
+                            type = "Time",
+                            step = 300),
+                        dbc.FormText("to the nearest 5-min"),
+                        dbc.FormFeedback("start time before end time", type = "valid"),
+                        dbc.FormFeedback("start time cannot be later than end time", type = "invalid")
+                    ]),
+              
+                # end-time input
                     html.Div([
                         dbc.Label("End"),
                         dbc.Input(
                             id = "end-time-input",
-                            type = "Time")
+                            type = "Time",
+                            step = 300),
                     ])
                     
-                )
             ]),
             html.Br(),
 
@@ -234,7 +204,7 @@ def update_map(start_address, end_address):
 
     return map_url
 
-#callback to update routine_list
+## callback to update routine_list
 @app.callback(
     #[Output('alert-container', 'children'),
     #    Output('url', 'pathname')],
@@ -258,7 +228,8 @@ def save_routine(n_clicks, start_address, end_address, start_time, end_time, day
 
     if not (start_address and end_address and start_time and end_time and days_of_week):
         return html.Div(children=dbc.Alert('Please fill in all the inputs!', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"}),"routine_not_saved"
-
+    if start_time > end_time or start_time[-1] not in ['0','5'] or end_time[-1] not in ['0','5']:
+        return html.Div(children=dbc.Alert('Please check input format', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"}),"routine_not_saved"
     length = len(routine_dict)
     routine_num = 'routine' + str(length + 1)
 
@@ -272,7 +243,23 @@ def save_routine(n_clicks, start_address, end_address, start_time, end_time, day
 
     return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery'),"routine_saved"
 
+## callback to check start-time is before end-time 
+@app.callback(
+    Output('start-time-input', 'invalid'),
+    Output('start-time-input', 'valid'),
+    Output('end-time-input', 'invalid'),
+    Output('end-time-input', 'valid'),
+    Input('start-time-input','value'),
+    Input('end-time-input','value')
+)
+def validate_input_time(start_time, end_time):
+    if start_time and end_time: # both has inputs
+        start_before_end =  (start_time <= end_time) # = True if start before end
+        return not start_before_end, start_before_end, not start_before_end, start_before_end 
+    else: 
+        return False, False, False, False
 
+        
 
 #### Layout ####
 layout = dbc.Row([
