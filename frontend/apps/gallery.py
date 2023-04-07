@@ -155,11 +155,10 @@ def build_sidebar_gallery():
             
 
             # save button
+            html.Div(
+                id = "check-routine-exist"
+            ),
 
-            dcc.Link(dbc.Button("go to current prediction page", size = "md", style = {"left":"1rem"}),href = '/results'),
-            html.Br(),
-            html.Br(),
-            dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine'),
 
             # tips card 
             dbc.Card([
@@ -280,6 +279,7 @@ def update_map(selected_routine):
     Output('end-time-input', 'value'),
     Output('end-time-input', 'disabled'),
     Output("day-of-week-div", 'children'),
+    Output('check-routine-exist','children'),
     Input('routine-dropdown-3', 'value')
 )
 def update_routine_info(selected_routine):
@@ -295,6 +295,7 @@ def update_routine_info(selected_routine):
     end_time_value = ""
     end_time_disabled = False
     days_of_week = ""
+    check_exists = dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine')
 
     # if there is any routine selected
     if selected_routine:
@@ -307,9 +308,17 @@ def update_routine_info(selected_routine):
         end_time_value = routine_dict[routine_num]['end_time_value']
         end_time_disabled = True
         days_of_week = routine_dict[routine_num]['days_of_week']
+        check_exists = [
+            dcc.Link(dbc.Button("go to current prediction page", size = "md", style = {"left":"1rem"}),href = '/results'),
+            html.Br(),
+            html.Br(),
+            dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine')
+            ]
 
 
-    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week
+    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week,check_exists
+
+
 
 ## callback to update routine options in the dropdown menu
 @app.callback(
