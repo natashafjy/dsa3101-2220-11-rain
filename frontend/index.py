@@ -8,6 +8,7 @@ from apps import results, login, gallery, add_routine,signup
 
 app.layout = html.Div([
     dcc.Store(id='shared-store'),
+    dcc.Store(id = 'routine-selected-store', storage_type = 'local'),
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),
 ])
