@@ -37,7 +37,7 @@ def login():
     if len(all_rows) == 0:
         exist_in_db = False
 
-    #assumes unique (username, password)
+    #assumes unique (username)
     password_set = set(map(lambda x: x[-1], all_rows))
     cprint(f'password_set is {password_set}')
     if password_input in password_set:
@@ -80,16 +80,13 @@ def sign_up():
     cursor.execute(exist_user_query, (username,) )
     rows = cursor.fetchall()
 
-    #add users if user_name not taken
-
-    #assumes unique (username, password)
+    #assumes unique (username)
     password_set = set(map(lambda x: x[-1], rows))
     cprint(f'password_set is {password_set}')
 
+    #add users if user_name not taken
     if len(rows) == 0 :
         exist_in_db = False
-
-    if password not in password_set:
         cursor.execute(add_user_query, (username, password) )
         db.commit()
         added_to_db = True
@@ -98,6 +95,18 @@ def sign_up():
     db.close()
     response = {"exist": exist_in_db, "success": added_to_db}
     return jsonify(response)
+
+@app.route("/gallery", methods = ["GET"])
+def gallery():
+    """
+    To be implemented
+    """
+    if request.method == "GET":
+        #access the username
+        #get all routines
+        
+    return "Not implemented yet"
+
 
 @app.route("/add-routine", methods=["GET", "POST"])
 def add_routine():
