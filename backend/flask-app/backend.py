@@ -106,6 +106,7 @@ def gallery():
     if request.method == "GET":
         #access the username
         #get all routines
+        pass
         
     return "Not implemented yet"
 
