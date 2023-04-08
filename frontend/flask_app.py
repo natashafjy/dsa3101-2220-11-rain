@@ -1,4 +1,4 @@
-from shared import user_dict,user_routine_dict
+from shared import user_routine_dict
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -6,15 +6,14 @@ app = Flask(__name__)
 
 @app.route('/api/login', methods=['GET'])
 def get_login_data():
-    global user_dict
     username = request.args.get('username')
     password = request.args.get('password')
     data = {'exist':False,
             'match':False}
-    if username not in user_dict:
+    if username not in user_routine_dict:
         return jsonify(data)
     else:
-        if password == user_dict[username]:
+        if password == user_routine_dict[username]['password']:
             data = {'exist':True,
                     'match':True}
         else:
@@ -25,12 +24,11 @@ def get_login_data():
 
 @app.route('/api/signup', methods=['POST'])
 def get_sigup_data():
-    global user_dict
     username = request.args.get('username')
     password = request.args.get('password')
     data = {'exist':False}
-    if username not in user_dict:
-        user_dict[username] = password
+    if username not in user_routine_dict:
+        user_routine_dict[username] = password
         return jsonify(data)
     else:
         data = {'exist':True}
@@ -62,4 +60,14 @@ def add_routine_data():
 
 '''
 
+@app.route('/api/gallery', methods=['GET'])
+def get_results_data():
+    global user_routine_dict
+    username = str(request.args.get('username'))
+    
+    routine_num = len(user_routine_dict[username]['routine'].keys())
+    routine = user_routine_dict[username]['routine']
+
+    data = {'routine_num':routine_num,'routine':routine}
+    return jsonify(data)
 

@@ -20,7 +20,7 @@ import os
 import pathlib
 
 from app import app
-from shared import routine_dict, generate_routine_options
+from shared import generate_routine_options
 
 load_figure_template('MORPH')
 
