@@ -39,15 +39,15 @@ def get_sigup_data():
 @app.route('/api/gallery', methods=['GET'])
 def get_gallery_data():
     global user_routine_dict
-    username = request.args.get('username')
+    username = str(request.args.get('username'))
     
-    routine_num = len(user_routine_dict['routine'].keys())
-    routine = user_routine_dict['routine']
+    routine_num = len(user_routine_dict[username]['routine'].keys())
+    routine = user_routine_dict[username]['routine']
 
     data = {'routine_num':routine_num,'routine':routine}
     return jsonify(data)
 
-
+'''
 @app.route('/api/add_routine', methods=['POST'])
 def add_routine_data():
     global user_dict
@@ -60,6 +60,6 @@ def add_routine_data():
 
     return 200
 
-
+'''
 
 

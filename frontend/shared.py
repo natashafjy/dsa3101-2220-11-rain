@@ -18,7 +18,7 @@ user_routine_dict = {
  'days_of_week':'Mon Tue Wed'}}
  }
  }
-def generate_routine_options():
+def generate_routine_options(routine_dict):
     options = []
     count = 1
     for routine_id in routine_dict.keys():
