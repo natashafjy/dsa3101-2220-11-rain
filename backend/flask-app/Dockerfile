@@ -5,9 +5,8 @@ FROM python:3.10.6-slim-buster
 WORKDIR /app
 
 COPY backend.py backend.py
-COPY init_db.py init_db.py
 COPY requirements.txt requirements.txt
-# COPY init_db.sql /docker-entrypoint-initdb.d/init_db.sql
+g
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
