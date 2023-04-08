@@ -12,14 +12,11 @@ def cprint(val):
         print(val,flush=True)
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/api/login", methods=["GET"])
 def login():
     '''
     To be implemented
     '''
-    if request.method == "GET":
-        return "Hiii im on the login page" #dash.layout for  /
-
     # POST Request
     exist_in_db = True
     password_match = False
@@ -50,14 +47,12 @@ def login():
     response = {"exist":exist_in_db, "match": password_match}
     return jsonify(response)
 
-@app.route("/signup", methods=["GET", "POST"])
+
+@app.route("/api/signup", methods=["POST"])
 def sign_up():
     '''
     To be implemented
     '''
-    if request.method == "GET":
-        return "Hii im trying to signup"
-    
     #else POST
     exist_in_db = True
     added_to_db = False
