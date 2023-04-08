@@ -66,6 +66,7 @@ def spread_column(lst):
 data["loc_val"] = data["readings"].map(lambda entry: spread_column(entry))
 data = data.join(pd.json_normalize(data["loc_val"]))
 data = data.drop(columns = ["readings", "loc_val"])
+data = data.fillna(0.0)
 
 ## reshape dataframe such that each row is date+time and one station only, with cols [date, time, station, value]
 data = data.melt(id_vars = ["timestamp"], var_name = "station")
