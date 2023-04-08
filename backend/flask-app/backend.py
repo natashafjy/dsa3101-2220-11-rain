@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
 from get_rain_probability import *
+from get_last_rain import *
 
 app = Flask(__name__)
 
@@ -184,5 +185,7 @@ def make_prediction():
     # points_of_interest = [] # get points from routine
     result = get_rain_probability(predicted_data, points_of_interest)
 
+    last_rain_start, last_rain_end = get_last_rain(points_of_interest)
+    
     return result
 
