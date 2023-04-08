@@ -126,7 +126,7 @@ def make_prediction():
     # 1. get stations near points in routine
 
     # 2. retrieve data from API and format data to fit into model
-    current_date= date.today()
+    # current_date= date.today()
     # input_time_start = ###
     # input_time_end = ###
     

@@ -7,6 +7,8 @@ WORKDIR /app
 COPY backend.py backend.py
 COPY requirements.txt requirements.txt
 COPY get_rain_probability.py get_rain_probability.py
+COPY data data
+
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
