@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
-from get_rain_probability import *
+from get_routine_rain_probability import *
 from get_island_rain_probability import *
 from get_last_rain import *
 
@@ -202,7 +202,7 @@ def make_prediction():
     cursor.close()
     db.close()
 
-    result1 = get_rain_probability(predicted_data, points_of_interest)
+    result1 = get_routine_rain_probability(predicted_data, points_of_interest)
     result2 = get_island_rain_probability(predicted_data)
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
