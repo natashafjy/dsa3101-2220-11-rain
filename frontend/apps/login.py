@@ -4,6 +4,7 @@ from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
 from shared import user_dict
+import requests
 ##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
 
@@ -23,7 +24,7 @@ def verify_pass():
         dbc.Col([], width=2),
         dbc.Col(
             dcc.Link(
-                dbc.Button("Click me to go!", color="primary", id="login-button", n_clicks=0),
+                dbc.Button("Click me to go!", color="primary", id="go-button", n_clicks=0),
                 href='/gallery'
             ),
             width=4
@@ -88,9 +89,23 @@ layout = html.Div([
 def validate_login(n_clicks, username, password):
     if username == '' or not username or password == '' or not password:
             return  html.Div(children=''),before_verify()
-    if username not in user_dict:
-        return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
-    if user_dict[username]==password:
-        return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
     else:
-        return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
+        url1 = 'http://127.0.0.1:5000/api/login'
+        param1 = {'username': username, 'password':password}
+        r1 = requests.get(url1, params=param1).json()
+        if not r1['exist']:
+            return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
+        elif not r1['match']:
+            return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
+        else:
+            return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
+        
+
+        '''
+        if username not in user_dict:
+            return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
+        if user_dict[username]==password:
+            return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
+        else:
+            return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
+        '''

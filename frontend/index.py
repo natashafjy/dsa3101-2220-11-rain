@@ -4,10 +4,13 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from app import app
 from apps import results, login, gallery, add_routine,signup
+from flask_app import app as flask_app
+
 
 
 app.layout = html.Div([
     dcc.Store(id='shared-store'),
+    dcc.Store(id = 'user-id'),
     dcc.Store(id = 'routine-selected-store', storage_type = 'local'),
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),
@@ -35,4 +38,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    flask_app.run(debug=True, port=5000)
