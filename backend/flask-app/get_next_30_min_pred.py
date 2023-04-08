@@ -25,5 +25,5 @@ def get_next_30_min_pred(curr_date, curr_time, data, data_pivot, xgboost_model):
             pred_rain = xgboost_model.predict(features)
             stn_pred = [t*5, stn, pred_rain[0]]
             all_predictions.append(stn_pred)
-    df = pd.DataFrame(all_predictions, columns = ['time', 'station', 'prediction'])    
+    df = pd.DataFrame(all_predictions, columns = ['time', 'station', 'value'])    
     return df
