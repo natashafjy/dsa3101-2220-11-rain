@@ -37,7 +37,7 @@ def get_sigup_data():
     return jsonify(data)
 
 @app.route('/api/gallery', methods=['GET'])
-def get_data():
+def get_gallery_data():
     global user_routine_dict
     username = request.args.get('username')
     
@@ -49,7 +49,7 @@ def get_data():
 
 
 @app.route('/api/add_routine', methods=['POST'])
-def get_data():
+def add_routine_data():
     global user_dict
     argu = equest.args.json()
     username = argu['username']
