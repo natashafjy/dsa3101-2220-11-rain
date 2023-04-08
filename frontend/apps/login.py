@@ -74,9 +74,6 @@ layout = html.Div([
 
 
 @app.callback(
-    #[Output('alert-container', 'children'),
-    #    Output('url', 'pathname')],
-
     [Output('query-results','children'),
      Output('login-sign','children'),
      Output('user-id','data')
@@ -99,12 +96,3 @@ def validate_login(n_clicks, username, password):
         else:
             return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass(),username
         
-
-        '''
-        if username not in user_dict:
-            return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
-        if user_dict[username]==password:
-            return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
-        else:
-            return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
-        '''

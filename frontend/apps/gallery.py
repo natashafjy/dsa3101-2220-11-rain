@@ -221,10 +221,6 @@ layout = dbc.Row([
     Input('user-id', 'data')
 )
 def update_routine_info(selected_routine,data):
-    '''
-    selected_routine: int, 1,2
-    '''
-    global routine_dict
     gallery_title = "Choose an existing routine or add a new routine!"
     start_point = " "
     end_point = " "

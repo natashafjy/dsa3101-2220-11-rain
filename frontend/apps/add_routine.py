@@ -226,7 +226,6 @@ def update_map(start_address, end_address):
      dash.dependencies.State('day-of-week-checklist', 'value')]
 )
 def save_routine(n_clicks, cur_routine_num,username,start_address, end_address, start_time, end_time, days_of_week):
-    ##global routine_dict
     if n_clicks == 0:
         raise PreventUpdate
 
