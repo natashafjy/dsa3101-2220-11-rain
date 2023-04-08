@@ -10,7 +10,7 @@ from flask_app import app as flask_app
 
 app.layout = html.Div([
     dcc.Store(id='shared-store'),
-    dcc.Store(id = 'user-id'),
+    dcc.Store(id = 'user-id',storage_type = 'local'),
     dcc.Store(id = 'routine-selected-store', storage_type = 'local'),
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),

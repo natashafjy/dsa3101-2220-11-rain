@@ -37,7 +37,7 @@ def get_sigup_data():
     return jsonify(data)
 
 '''
-@app.route('/api/gallery', methods=['GET'])
+@app.route('/api/add_routine', methods=['POST'])
 def get_data():
     global user_dict
     username = request.args.get('username')
@@ -54,8 +54,11 @@ def get_data():
             data = {'exist':True,
                     'match':False}
     return jsonify(data)
+'''
 
-@app.route('/api/add_routine', methods=['POST'])
+'''
+
+@app.route('/api/gallery', methods=['GET'])
 def get_data():
     global user_dict
     username = request.args.get('username')
