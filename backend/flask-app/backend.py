@@ -4,6 +4,8 @@ import xgboost as xgb
 from get_routine_rain_probability import *
 from get_island_rain_probability import *
 from get_last_rain import *
+from get_data_from_api import *
+from get_next_30_min_pred import *
 
 
 app = Flask(__name__)
@@ -165,23 +167,16 @@ def add_routine():
 
 @app.route("/results")
 def make_prediction():
-    '''
-    To be implemented
-    '''
 
     # 1. retrieve data from API and format data to fit into model
-
-
-
-
-    
+    curr_date, curr_time = get_curr_date_time()
+    formatted_data = get_updated_data()
+    formatted_data_pivot = get_updated_data_pivot()
  
     # 2. use model to generate predictions
     xgboost_model = xgb.XGBRegressor()
     xgboost_model.load_model("xgboost_model.json")
-    predicted_values = xgboost_model.predict(formatted_data) # replace with variable name of formatted data from (2)
-    stations = [] # replace with list of stations
-    predicted_data = pd.DataFrame(list(zip(stations, predicted_values)), columns=["stations", "predicted_values"])
+    predicted_data = get_next_30_min_pred(curr_date, curr_time, formatted_data, formatted_data_pivot, xgboost_model)
 
     # 3. generate probabilities
     # Assumes GET request has data = {"user_name": username, "routine_id": id}
