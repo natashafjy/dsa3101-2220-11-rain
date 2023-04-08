@@ -1,4 +1,4 @@
-from shared import user_dict
+from shared import user_dict,user_routine_dict
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -36,43 +36,30 @@ def get_sigup_data():
         data = {'exist':True}
     return jsonify(data)
 
-'''
+@app.route('/api/gallery', methods=['GET'])
+def get_data():
+    global user_routine_dict
+    username = request.args.get('username')
+    
+    routine_num = len(user_routine_dict['routine'].keys())
+    routine = user_routine_dict['routine']
+
+    data = {'routine_num':routine_num,'routine':routine}
+    return jsonify(data)
+
+
 @app.route('/api/add_routine', methods=['POST'])
 def get_data():
     global user_dict
-    username = request.args.get('username')
-    password = request.args.get('password')
-    data = {'exist':False,
-            'match':False}
-    if username not in user_dict:
-        return jsonify(data)
-    else:
-        if password == user_dict[username]:
-            data = {'exist':True,
-                    'match':True}
-        else:
-            data = {'exist':True,
-                    'match':False}
-    return jsonify(data)
-'''
+    argu = equest.args.json()
+    username = argu['username']
+    routine_id = argu['routine_num']
+    routine_info = argu['routine_info']
 
-'''
+    user_routine_dict['username']['routine'][routine_id] = routine_info
 
-@app.route('/api/gallery', methods=['GET'])
-def get_data():
-    global user_dict
-    username = request.args.get('username')
-    password = request.args.get('password')
-    data = {'exist':False,
-            'match':False}
-    if username not in user_dict:
-        return jsonify(data)
-    else:
-        if password == user_dict[username]:
-            data = {'exist':True,
-                    'match':True}
-        else:
-            data = {'exist':True,
-                    'match':False}
-    return jsonify(data)
-'''
+    return 200
+
+
+
+
