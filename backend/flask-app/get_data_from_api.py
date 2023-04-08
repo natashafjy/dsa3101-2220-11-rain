@@ -127,7 +127,7 @@ def create_sliding_window(req_datetime, rain_data_pivot):
 
 ## As the 2 most recent readings cannot be retrieved via API call, we need to predict these values and add them into the data
 xgboost_model = xgb.XGBRegressor()
-xgboost_model.load_model("../sliding_window_data/xgboost_model.json")
+xgboost_model.load_model("xgboost_model.json")
 ## To predict most recent 2 readings first
 sec_rec_date = data['date'].max()
 sec_rec_time = data['time'].max()
