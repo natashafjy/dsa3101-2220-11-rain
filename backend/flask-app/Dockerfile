@@ -6,7 +6,6 @@ WORKDIR /app
 
 COPY backend.py backend.py
 COPY requirements.txt requirements.txt
-g
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
