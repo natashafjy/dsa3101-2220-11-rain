@@ -1,0 +1,14 @@
+version: "1"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+  db:
+    image: "mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: examplePW
+      MYSQL_DATABASE: rainfall
+    volumes:
+      - ./dump:/docker-entrypoint-initdb.d
+
