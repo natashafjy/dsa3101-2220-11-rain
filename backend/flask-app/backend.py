@@ -182,7 +182,24 @@ def make_prediction():
     predicted_data = pd.DataFrame(list(zip(stations, predicted_values)), columns=["stations", "predicted_values"])
 
     # 4. generate probabilities
-    # points_of_interest = [] # get points from routine
+    # Assumes GET request has data = {"user_name": username, "routine_id": id}
+    username, routine_id = request.form["user_name"], request.form["routine_id"]
+    
+    routine_info_query = """
+        SELECT R1.start_long, R1.start_lat, R1.end_long, R1.end_lat
+        FROM ROUTINES R1
+        WHERE R1.username = %s
+        AND R1.routine_id = %s
+    """
+    db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
+    cursor = db.cursor()
+    cursor.execute(routine_info_query, (username, routine_id) )
+    points_of_interest = cursor.fetchone()[0]
+    points_of_interest = tuple(map(lambda x: float(x),points_of_interest))
+    points_of_interest = [points_of_interest[:2], points_of_interest[2:]]
+    cursor.close()
+    db.close()
+
     result = get_rain_probability(predicted_data, points_of_interest)
 
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
