@@ -23,7 +23,7 @@ def get_island_rain_probability(predicted_data):
 
     print(len(points_of_interest))
 
-    for time in range(0, 30, 5):
+    for time in range(0, 31, 5):
         data_at_time = data[data["time"] == time]
         x = np.array(data_at_time["longitude"])
         y = np.array(data_at_time["latitude"])
