@@ -89,11 +89,9 @@ def validate_login(n_clicks, username, password):
     else:
         url1 = 'http://127.0.0.1:5001/api/signup'
         param1 = {'username': username, 'password':password}
-        r1 = requests.get(url1, params=param1)
-        print(r1)
-        '''
+        r1 = requests.post(url1, params=param1).json()
         if not r1['exist']:
             return html.Div(children=dbc.Alert('Sign-up check pass!', color='success', duration=None)),verify_pass()
         else:
             return html.Div(children=dbc.Alert('Username already exists!', color='danger', duration=None)),before_verify()
-    '''
+    

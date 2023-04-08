@@ -23,7 +23,7 @@ def get_login_data():
     return jsonify(data)
 
 
-@app.route('/api/signup', methods=['GET'])
+@app.route('/api/signup', methods=['POST'])
 def get_sigup_data():
     global user_dict
     username = request.args.get('username')
