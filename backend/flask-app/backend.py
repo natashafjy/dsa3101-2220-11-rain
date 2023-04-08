@@ -26,9 +26,8 @@ def login():
         FROM USERS
         WHERE username = %s
      """
-    # Assumes data comes in as a form-data
-    cprint(f'req.form = {request.form}')   
-    username, password_input = request.form["user_name"], request.form["password"]
+    # Assumes data comes in as a get request in the arguments
+    username, password_input = request.args.get('username'), request.args.get('password')
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
     cursor = db.cursor()
     cursor.execute(exist_user_query, (username,))
