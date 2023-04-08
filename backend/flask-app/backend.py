@@ -127,8 +127,8 @@ def make_prediction():
 
     # 2. retrieve data from API and format data to fit into model
     current_date= date.today()
-    input_time_start = ###
-    input_time_end = ###
+    # input_time_start = ###
+    # input_time_end = ###
     
  
     # 3. use model to generate predictions
