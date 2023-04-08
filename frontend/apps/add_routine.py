@@ -22,6 +22,8 @@ import pathlib
 from app import app
 from shared import generate_routine_options
 
+import requests
+
 load_figure_template('MORPH')
 
 # setting up dataframe
@@ -219,10 +221,11 @@ def update_map(start_address, end_address):
      dash.dependencies.State('end-address-dropdown', 'value'),
      dash.dependencies.State('start-time-input', 'value'),
      dash.dependencies.State('end-time-input', 'value'),
-     dash.dependencies.State('day-of-week-checklist', 'value')]
+     dash.dependencies.State('day-of-week-checklist', 'value'),
+     dash.dependencies.State('user-id', 'data'),]
 )
-def save_routine(n_clicks, start_address, end_address, start_time, end_time, days_of_week):
-    global routine_dict
+def save_routine(n_clicks, start_address, end_address, start_time, end_time, days_of_week, username):
+    global user_routine_dict
     if n_clicks == 0:
         raise PreventUpdate
 
@@ -233,15 +236,25 @@ def save_routine(n_clicks, start_address, end_address, start_time, end_time, day
     length = len(routine_dict)
     routine_num = 'routine' + str(length + 1)
 
-    routine_dict[routine_num] = {
+    cur_routine_dict = {
         'start_point': start_address,
         'end_point': end_address,
         'start_time_value': start_time,
         'end_time_value': end_time,
         'days_of_week': days_of_week
     }
+    param = {'username':username,
+             'routine_num':routine_num, 
+             'routine_info':cur_routine_dict}
+    url_add_routine = 'http://127.0.0.1:5001/api/add_routine'
+    req = requests.post(url_add_routine, json = param)
 
-    return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery'),"routine_saved"
+    if req.status_code == 200:
+        return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery'),"routine_saved"
+    else:
+        return html.Div(children = f"status code is{req.status_code}" ),html.Div(),"not saved"
+
+    
 
 ## callback to check start-time is before end-time 
 @app.callback(
