@@ -3,7 +3,6 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
-from shared import user_dict
 import requests
 ##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 

@@ -3,8 +3,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
-from shared import user_dict
-##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
+import requests
 
 def add_user(name,pw):
     user_dict[name] = pw
@@ -22,7 +21,7 @@ def verify_pass():
         dbc.Col([], width=2),
         dbc.Col(
             dcc.Link(
-                dbc.Button("Back to log-in page", color="primary", id="login-button", n_clicks=0),
+                dbc.Button("Back to log-in page", color="primary", id="go-button", n_clicks=0),
                 href='/'
             ),
             width=4
@@ -85,12 +84,16 @@ layout = html.Div([
      dash.dependencies.State('password', 'value')]
 )
 def validate_login(n_clicks, username, password):
-    global user_dict
     if username == '' or not username or password == '' or not password:
             return  html.Div(children=''),before_verify()
-    if username not in user_dict:
-        user_dict[username] = password
-        return html.Div(children=dbc.Alert('Sign-up check pass!', color='success', duration=None)),verify_pass()
     else:
-        return html.Div(children=dbc.Alert('Username already exists!', color='danger', duration=None)),before_verify()
-    
+        url1 = 'http://127.0.0.1:5001/api/signup'
+        param1 = {'username': username, 'password':password}
+        r1 = requests.get(url1, params=param1)
+        print(r1)
+        '''
+        if not r1['exist']:
+            return html.Div(children=dbc.Alert('Sign-up check pass!', color='success', duration=None)),verify_pass()
+        else:
+            return html.Div(children=dbc.Alert('Username already exists!', color='danger', duration=None)),before_verify()
+    '''
