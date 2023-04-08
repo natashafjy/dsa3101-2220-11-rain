@@ -18,7 +18,7 @@ def login():
     To be implemented
     '''
     if request.method == "GET":
-        return "Hiii im on the login page"
+        return "Hiii im on the login page" #dash.layout for  /
 
     # POST Request
     exist_in_db = True
@@ -103,20 +103,62 @@ def gallery():
     """
     To be implemented
     """
-    if request.method == "GET":
-        #access the username
-        #get all routines
-        pass
-        
-    return "Not implemented yet"
+    #access the username
+    username = request.form["user_name"]
+    #get all routines
+    latest_routine_query = """
+        SELECT R1.start_address, R1.end_address, R1.start_time, R1.end_time, R1.days_of_week
+        FROM ROUTINES R1
+        WHERE R1.username = %s;
+        """
+    db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
+    cursor = db.cursor()
+
+    #check number of routines user has
+    cursor.execute(latest_routine_query, (username,) )
+    routine_keys = ["start_point", "end_point", "start_time_value", "end_time_value", "days_of_week "]
+    all_routines = cursor.fetchall()
+    all_routines = {f'routine{indx}': dict(zip(routine_keys,val)) for indx,val in enumerate(all_routines, start=1)}
+    response = {"has_routes": len(all_routines), 
+                "routine": all_routines}
+    return jsonify(response)
 
 
-@app.route("/add-routine", methods=["GET", "POST"])
+@app.route("/add_routine", methods=["POST"])
 def add_routine():
     '''
     To be implemented
     '''
-    return "Add_routine"
+    latest_routine_query = """
+    SELECT COUNT(*)
+    FROM ROUTINES R1
+    WHERE R1.username = %s
+    """
+    
+    insert_routine_query = """
+    INSERT INTO ROUTINES VALUES (%(user_name)s, %(routine_id)s, %(start_address)s, 
+                                 %(start_long)s, %(start_lat)s, %(end_address)s, 
+                                 %(end_long)s ,%(end_lat)s, %(start_time)s, 
+                                 %(end_time)s, %(days_of_week)s)
+    """
+    #establish connection
+    username = request.form["user_name"]
+    req_data = dict(request.form)
+
+    db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
+    cursor = db.cursor()
+
+    #get latest routine_id
+    cursor.execute(latest_routine_query, (username,) )
+    next_count = cursor.fetchone()[0] + 1
+    req_data["routine_id"] = next_count
+
+    cursor.execute(insert_routine_query, params=req_data )
+    db.commit()
+
+    cursor.close()
+    db.close()
+    return "Added_routine"
 
 @app.route("/results")
 def make_prediction():

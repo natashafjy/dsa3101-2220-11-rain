@@ -4,7 +4,7 @@ CREATE TABLE USERS (
         );
 
 CREATE TABLE ROUTINES (
-      username varchar(255) ,
+      username varchar(255),
       routine_id int,
       start_address varchar(255),
       start_long varchar(255),
