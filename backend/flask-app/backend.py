@@ -202,11 +202,23 @@ def make_prediction():
     cursor.close()
     db.close()
 
-    result1 = get_routine_rain_probability(predicted_data, points_of_interest)
+    start_rain_df, last_rain_df = get_routine_rain_probability(predicted_data, points_of_interest)
     result2 = get_island_rain_probability(predicted_data)
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
     
-    return result1, result2, last_rain_start, last_rain_end
+
+    # convert to json 
+    start_rain = start_rain_df.to_json()
+    last_rain = last_rain_df.to_json()
+
+    response = dict()
+    response["start_rain"] = start_rain
+    response["last_rain"] = last_rain
+    response["last_rain_start"] = last_rain_start
+    response["last_rain_end"] = last_rain_end
+
+
+    return jsonify(response)
 
