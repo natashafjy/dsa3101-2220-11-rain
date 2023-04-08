@@ -45,20 +45,14 @@ def get_gallery_data():
     data = {'routine_num':routine_num,'routine':routine}
     return jsonify(data)
 
-'''
 @app.route('/api/add_routine', methods=['POST'])
 def add_routine_data():
-    global user_dict
-    argu = equest.args.json()
-    username = argu['username']
-    routine_id = argu['routine_num']
-    routine_info = argu['routine_info']
-
-    user_routine_dict['username']['routine'][routine_id] = routine_info
-
-    return 200
-
-'''
+    global user_routine_dict
+    username = request.json['username']
+    routine_num = request.json['routine_num']
+    routine_info = request.json['routine_info']
+    user_routine_dict[username]['routine'][routine_num] = routine_info
+    return 'success'
 
 @app.route('/api/gallery', methods=['GET'])
 def get_results_data():
