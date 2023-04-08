@@ -4,6 +4,8 @@ import xgboost as xgb
 from get_routine_rain_probability import *
 from get_island_rain_probability import *
 from get_last_rain import *
+from get_data_from_api import *
+from get_next_30_min_pred import *
 
 
 app = Flask(__name__)
@@ -159,23 +161,16 @@ def add_routine():
 
 @app.route("/results")
 def make_prediction():
-    '''
-    To be implemented
-    '''
 
     # 1. retrieve data from API and format data to fit into model
-
-
-
-
-    
+    curr_date, curr_time = get_curr_date_time()
+    formatted_data = get_updated_data()
+    formatted_data_pivot = get_updated_data_pivot()
  
     # 2. use model to generate predictions
     xgboost_model = xgb.XGBRegressor()
     xgboost_model.load_model("xgboost_model.json")
-    predicted_values = xgboost_model.predict(formatted_data) # replace with variable name of formatted data from (2)
-    stations = [] # replace with list of stations
-    predicted_data = pd.DataFrame(list(zip(stations, predicted_values)), columns=["stations", "predicted_values"])
+    predicted_data = get_next_30_min_pred(curr_date, curr_time, formatted_data, formatted_data_pivot, xgboost_model)
 
     # 3. generate probabilities
     # Assumes GET request has data = {"user_name": username, "routine_id": id}
@@ -196,11 +191,23 @@ def make_prediction():
     cursor.close()
     db.close()
 
-    result1 = get_routine_rain_probability(predicted_data, points_of_interest)
-    result2 = get_island_rain_probability(predicted_data)
+    start_pred_df, last_pred_df = get_routine_rain_probability(predicted_data, points_of_interest)
+    island_pred_df = get_island_rain_probability(predicted_data)
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
     
-    return result1, result2, last_rain_start, last_rain_end
+    # convert to json 
+    start_pred = start_pred_df.to_json()
+    last_pred = last_pred_df.to_json()
+    island_pred = island_pred_df.to_json()
+
+    response = dict()
+    response["start_pred"] = start_pred
+    response["last_pred"] = last_pred
+    response["island_pred"] = island_pred
+    response["last_rain_start"] = last_rain_start
+    response["last_rain_end"] = last_rain_end
+
+    return jsonify(response)
 
