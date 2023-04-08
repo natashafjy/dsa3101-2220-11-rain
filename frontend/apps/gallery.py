@@ -270,6 +270,7 @@ def update_routine_info(selected_routine,data):
 ## callback to update routine options in the dropdown menu
 @app.callback(
     Output('routine-dropdown-3', 'options'),
+    Output('cur_routine_num','data'),
     Input('user-id', 'data')
 )
 def update_routine_options(data):
@@ -281,7 +282,8 @@ def update_routine_options(data):
         r1 = requests.get(url1, params=param1)       
         r1_data = r1.json()
         routine = r1_data['routine']
-        return generate_routine_options(routine)
+        routine_num = r1_data['routine_num']
+        return generate_routine_options(routine),routine_num
         
 
 ## callback to save the choice of routine, for use in results page

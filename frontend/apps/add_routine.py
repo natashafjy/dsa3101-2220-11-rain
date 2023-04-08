@@ -22,6 +22,8 @@ import pathlib
 from app import app
 from shared import generate_routine_options
 
+import requests
+
 load_figure_template('MORPH')
 
 # setting up dataframe
@@ -211,37 +213,45 @@ def update_map(start_address, end_address):
 
     [
     Output('save-results','children'),
-    Output('save-action','children'),
-    Output('shared-store', 'data')
+    Output('save-action','children')
     ],
-    [Input('save-button', 'n_clicks')],
+    [Input('save-button', 'n_clicks'),
+     Input('cur_routine_num', 'data'),
+     Input('user-id', 'data')],
+
     [dash.dependencies.State('start-address-dropdown', 'value'),
      dash.dependencies.State('end-address-dropdown', 'value'),
      dash.dependencies.State('start-time-input', 'value'),
      dash.dependencies.State('end-time-input', 'value'),
      dash.dependencies.State('day-of-week-checklist', 'value')]
 )
-def save_routine(n_clicks, start_address, end_address, start_time, end_time, days_of_week):
-    global routine_dict
+def save_routine(n_clicks, cur_routine_num,username,start_address, end_address, start_time, end_time, days_of_week):
+    ##global routine_dict
     if n_clicks == 0:
         raise PreventUpdate
 
     if not (start_address and end_address and start_time and end_time and days_of_week):
-        return html.Div(children=dbc.Alert('Please fill in all the inputs!', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"}),"routine_not_saved"
+        return html.Div(children=dbc.Alert('Please fill in all the inputs!', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"})
     if start_time > end_time or start_time[-1] not in ['0','5'] or end_time[-1] not in ['0','5']:
-        return html.Div(children=dbc.Alert('Please check input format', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"}),"routine_not_saved"
-    length = len(routine_dict)
-    routine_num = 'routine' + str(length + 1)
+        return html.Div(children=dbc.Alert('Please check input format', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"})
 
-    routine_dict[routine_num] = {
+
+    routine_num = int(cur_routine_num)  + 1
+
+    cur_routine_dict = {
         'start_point': start_address,
         'end_point': end_address,
         'start_time_value': start_time,
         'end_time_value': end_time,
         'days_of_week': days_of_week
     }
+    param = {'username':username,
+             'routine_num':routine_num, 
+             'routine_info':cur_routine_dict}
 
-    return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery'),"routine_saved"
+    url_add_routine = 'http://127.0.0.1:5001/api/add_routine'
+    req = requests.post(url_add_routine, json = param)
+    return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery')
 
 ## callback to check start-time is before end-time 
 @app.callback(

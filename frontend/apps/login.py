@@ -4,7 +4,6 @@ from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
 import requests
-##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
 
 def before_verify():

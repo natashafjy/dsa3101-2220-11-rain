@@ -5,9 +5,6 @@ from app import app
 from dash.dependencies import Input, Output, State
 import requests
 
-def add_user(name,pw):
-    user_dict[name] = pw
-
 def before_verify():
     return dbc.Row([
         dbc.Col([], width=2),
