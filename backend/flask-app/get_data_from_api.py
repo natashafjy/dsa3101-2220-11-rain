@@ -13,6 +13,9 @@ dt_now_str = dt_now.strftime("%Y-%m-%d %H:%M:%S")
 current_date_str = dt_now_str[:11]
 current_time_str = dt_now_str[11:]
 
+def get_curr_date_time():
+    return(current_date_str, current_time_str)
+
 
 ## num  = 6: Get 6 intervals of timestamps for sliding window
 ## num != 6: Get most recent 12 timestamps in a list of (date, time) tuples
@@ -156,3 +159,8 @@ for win in readings:
     data.loc[len(data.index)] = [most_rec_date_str, most_rec_time_str, stn, pred_rain[0]]
 # update data_pivot with the 2 most recent readings
 data_pivot = data.pivot(index=["date","time"], columns="station", values="value")
+
+def get_updated_data():
+    return data
+def get_updated_data_pivot():
+    return data_pivot
