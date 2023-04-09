@@ -4,6 +4,8 @@ import xgboost as xgb
 from get_routine_rain_probability import *
 from get_island_rain_probability import *
 from get_last_rain import *
+from get_data_from_api import *
+from get_next_30_min_pred import *
 
 
 app = Flask(__name__)
@@ -60,8 +62,8 @@ def sign_up():
     added_to_db = False
 
     # Assumes data comes in as a form-data
-    cprint(f'req.form = {request.form}')   
-    username, password = request.form["user_name"], request.form["password"]
+    # cprint(f'req.form = {request.form}')   
+    username, password = request.ars.get("username"), request.args.get("password")
 
     exist_user_query = """
         SELECT *
@@ -81,7 +83,7 @@ def sign_up():
 
     #assumes unique (username)
     password_set = set(map(lambda x: x[-1], rows))
-    cprint(f'password_set is {password_set}')
+    # cprint(f'password_set is {password_set}')
 
     #add users if user_name not taken
     if len(rows) == 0 :
@@ -95,13 +97,13 @@ def sign_up():
     response = {"exist": exist_in_db, "success": added_to_db}
     return jsonify(response)
 
-@app.route("/gallery", methods = ["GET"])
+@app.route("/api/gallery", methods = ["GET"])
 def gallery():
     """
     To be implemented
     """
     #access the username
-    username = request.form["user_name"]
+    username = request.args.get("username")
     #get all routines
     latest_routine_query = """
         SELECT R1.start_address, R1.end_address, R1.start_time, R1.end_time, R1.days_of_week
@@ -116,12 +118,12 @@ def gallery():
     routine_keys = ["start_point", "end_point", "start_time_value", "end_time_value", "days_of_week "]
     all_routines = cursor.fetchall()
     all_routines = {f'routine{indx}': dict(zip(routine_keys,val)) for indx,val in enumerate(all_routines, start=1)}
-    response = {"has_routes": len(all_routines), 
+    response = {"routine_num": len(all_routines), 
                 "routine": all_routines}
     return jsonify(response)
 
 
-@app.route("/add_routine", methods=["POST"])
+@app.route("/api/add_routine", methods=["POST"])
 def add_routine():
     '''
     To be implemented
@@ -133,13 +135,13 @@ def add_routine():
     """
     
     insert_routine_query = """
-    INSERT INTO ROUTINES VALUES (%(user_name)s, %(routine_id)s, %(start_address)s, 
+    INSERT INTO ROUTINES VALUES (%(user_name)s, %(routine_num)s, %(start_address)s, 
                                  %(start_long)s, %(start_lat)s, %(end_address)s, 
                                  %(end_long)s ,%(end_lat)s, %(start_time)s, 
                                  %(end_time)s, %(days_of_week)s)
     """
     #establish connection
-    username = request.form["user_name"]
+    username = request.json["username"]
     req_data = dict(request.form)
 
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
@@ -147,8 +149,9 @@ def add_routine():
 
     #get latest routine_id
     cursor.execute(latest_routine_query, (username,) )
-    next_count = cursor.fetchone()[0] + 1
-    req_data["routine_id"] = next_count
+    next_count = cursor.fetchone()[0]
+    nex_count = + 1
+    req_data["routine_num"] = next_count
 
     cursor.execute(insert_routine_query, params=req_data )
     db.commit()
@@ -157,29 +160,22 @@ def add_routine():
     db.close()
     return "Added_routine"
 
-@app.route("/results")
+@app.route("/api/results")
 def make_prediction():
-    '''
-    To be implemented
-    '''
 
     # 1. retrieve data from API and format data to fit into model
-
-
-
-
-    
+    curr_date, curr_time = get_curr_date_time()
+    formatted_data = get_updated_data()
+    formatted_data_pivot = get_updated_data_pivot()
  
     # 2. use model to generate predictions
     xgboost_model = xgb.XGBRegressor()
     xgboost_model.load_model("xgboost_model.json")
-    predicted_values = xgboost_model.predict(formatted_data) # replace with variable name of formatted data from (2)
-    stations = [] # replace with list of stations
-    predicted_data = pd.DataFrame(list(zip(stations, predicted_values)), columns=["stations", "predicted_values"])
+    predicted_data = get_next_30_min_pred(curr_date, curr_time, formatted_data, formatted_data_pivot, xgboost_model)
 
     # 3. generate probabilities
     # Assumes GET request has data = {"user_name": username, "routine_id": id}
-    username, routine_id = request.form["user_name"], request.form["routine_id"]
+    username, routine_id = request.args.get("username"), request.args.get("routine_num")
     
     routine_info_query = """
         SELECT R1.start_long, R1.start_lat, R1.end_long, R1.end_lat
@@ -196,11 +192,22 @@ def make_prediction():
     cursor.close()
     db.close()
 
-    result1 = get_routine_rain_probability(predicted_data, points_of_interest)
-    result2 = get_island_rain_probability(predicted_data)
+    start_pred_df, last_pred_df = get_routine_rain_probability(predicted_data, points_of_interest)
+    island_pred_df = get_island_rain_probability(predicted_data)
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
     
-    return result1, result2, last_rain_start, last_rain_end
+    # convert to json 
+    start_pred = start_pred_df.to_json()
+    last_pred = last_pred_df.to_json()
+    island_pred = island_pred_df.to_json()
 
+    response = dict()
+    response["start_pred"] = start_pred
+    response["last_pred"] = last_pred
+    response["island_pred"] = island_pred
+    response["last_rain_start"] = last_rain_start
+    response["last_rain_end"] = last_rain_end
+
+    return jsonify(response)
