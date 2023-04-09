@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 COPY data data
 COPY apps apps
-copy assets assests
+COPY assets assests
 COPY app.py app.py
 COPY flask_app.py flask_app.py
 COPY get_routine_rain_probability.py get_routine_rain_probability.py
