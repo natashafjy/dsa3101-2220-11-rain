@@ -4,7 +4,6 @@ from dash import html, dcc
 from app import app
 from dash.dependencies import Input, Output, State
 import requests
-##app = dash.Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
 
 def before_verify():
@@ -75,9 +74,6 @@ layout = html.Div([
 
 
 @app.callback(
-    #[Output('alert-container', 'children'),
-    #    Output('url', 'pathname')],
-
     [Output('query-results','children'),
      Output('login-sign','children'),
      Output('user-id','data')
@@ -87,8 +83,10 @@ layout = html.Div([
      dash.dependencies.State('password', 'value')]
 )
 def validate_login(n_clicks, username, password):
-    if username == '' or not username or password == '' or not password:
-            return  html.Div(children=''),before_verify(),""
+    if n_clicks > 0 and (username == '' or not username or password == '' or not password):
+        return  html.Div(children=dbc.Alert('Please key in both username and password!', color='danger', duration=None)),before_verify(),""
+    if username == '' or not username or password == '' or not password :
+        return  html.Div(children=''),before_verify(),""
     else:
         url1 = 'http://127.0.0.1:5001/api/login'
         param1 = {'username': username, 'password':password}
@@ -100,12 +98,3 @@ def validate_login(n_clicks, username, password):
         else:
             return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass(),username
         
-
-        '''
-        if username not in user_dict:
-            return html.Div(children=dbc.Alert('Username not exists!', color='danger', duration=None)),before_verify()
-        if user_dict[username]==password:
-            return html.Div(children=dbc.Alert('Log-in check pass!', color='success', duration=None)),verify_pass()
-        else:
-            return html.Div(children=dbc.Alert('Invalid password!', color='danger', duration=None)),before_verify()
-        '''
