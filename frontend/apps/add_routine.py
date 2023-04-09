@@ -20,8 +20,6 @@ import os
 import pathlib
 
 from app import app
-
-
 import requests
 
 load_figure_template('MORPH')
