@@ -3,7 +3,6 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -11,12 +10,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from datetime import datetime
-
 import googlemaps
-
 import os
 import pathlib
-
 from app import app
 import requests
 
@@ -27,11 +23,19 @@ default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjN
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
 df_path = os.path.join(APP_PATH, os.path.join("../", "data.csv"))
 
+def generate_routine_options(routine_dict):
+    options = []
+    count = 1
+    for routine_id in routine_dict.keys():
+        option = {'label': routine_id, 'value': str(count)}
+        count += 1
+        options.append(option)
+    return options
+
 def update_df():
     new_df = pd.read_csv(df_path)
     return new_df
 df = update_df()
-
 
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -44,26 +48,7 @@ SIDEBAR_STYLE = {
     # "color" : "#4A6FA5"
 }
 
-def generate_routine_options(routine_dict):
-    options = []
-    count = 1
-    for routine_id in routine_dict.keys():
-        option = {'label': routine_id, 'value': str(count)}
-        count += 1
-        options.append(option)
-    return options
-
-
 def build_sidebar_gallery():
-    '''
-    Routine dropdown 
-    # Img weather icon
-	Rain bar graph -> to-do: change legend to 0, 5, 10..., 30
-	Wetness indicator -> to-do: look for plots other than bar plots to visualise this, change legend
-	Suggestion-bar -> to-do: adjust spacing in between
-	Span: (text) summary, tips etc 
-
-    '''
     sidebar_gallery = html.Div(
         id = "sidebar-gallery",
         children = [
@@ -81,11 +66,7 @@ def build_sidebar_gallery():
                 html.Div(
                     id = 'starting-point', 
                     children = [])
-                    
-            
-        
             ]),
-
             html.Br(),
             html.H5("Ending point"),
             dbc.Row([
@@ -93,10 +74,7 @@ def build_sidebar_gallery():
                 #dbc.Label("routine postal code"),
                 html.Div(
                     id = 'ending-point', 
-                    children = [])
-                    
-            
-        
+                    children = [])            
             ]),
 
             html.Br(),
@@ -123,7 +101,6 @@ def build_sidebar_gallery():
                 )
             ]),
             html.Br(),
-
             # which-day-of-the-week button group
             html.H5("Days of week"),
             html.Div(
@@ -147,18 +124,12 @@ def build_sidebar_gallery():
             ]),
             html.Br(),
             html.Br(),
-            
-
-
             html.Div(
                 id = "check-routine-exist"
             ),
 
-
             dbc.Card([
             ])
-            
-
     ],
     style = SIDEBAR_STYLE)
     return sidebar_gallery
@@ -176,26 +147,10 @@ def build_map(): #Dongmen 3.29
                 height='850rem'
             )
         ],
-        # style={
-        #     'width': '50%',
-        #     'float': 'left',
-        # }
     )
 ])
     
     return map
-
-
-def generate_routine_options(routine_dict):
-    options = []
-    count = 1
-    for routine_id in routine_dict.keys():
-        option = {'label': routine_id, 'value': str(count)}
-        count += 1
-        options.append(option)
-    return options
-
-
 
 #### Layout ####
 layout = dbc.Row([

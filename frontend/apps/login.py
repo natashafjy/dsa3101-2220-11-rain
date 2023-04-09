@@ -5,7 +5,6 @@ from app import app
 from dash.dependencies import Input, Output, State
 import requests
 
-
 def before_verify():
     return dbc.Row([
         dbc.Col([
@@ -29,7 +28,6 @@ def verify_pass():
         ),
         dbc.Col([], width=2)
     ], justify='center')
-
 
 
 layout = html.Div([

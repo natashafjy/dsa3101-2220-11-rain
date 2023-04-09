@@ -70,9 +70,6 @@ layout = html.Div([
 
 
 @app.callback(
-    #[Output('alert-container', 'children'),
-    #    Output('url', 'pathname')],
-
     [Output('query-results-signup','children'),
     Output('signup','children')
     ],
