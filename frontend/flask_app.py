@@ -48,6 +48,7 @@ def get_gallery_data():
     return jsonify(data)
 
 
+
 @app.route('/api/add_routine', methods=['POST'])
 def add_routine_data():
     global user_routine_dict

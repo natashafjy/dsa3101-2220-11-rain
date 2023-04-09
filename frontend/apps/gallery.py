@@ -186,6 +186,16 @@ def build_map(): #Dongmen 3.29
     return map
 
 
+def generate_routine_options(routine_dict):
+    options = []
+    count = 1
+    for routine_id in routine_dict.keys():
+        option = {'label': routine_id, 'value': str(count)}
+        count += 1
+        options.append(option)
+    return options
+
+
 
 #### Layout ####
 layout = dbc.Row([
