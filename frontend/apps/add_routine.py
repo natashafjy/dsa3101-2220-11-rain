@@ -223,8 +223,10 @@ def update_map(start_address, end_address):
      dash.dependencies.State('end-address-dropdown', 'value'),
      dash.dependencies.State('start-time-input', 'value'),
      dash.dependencies.State('end-time-input', 'value'),
-     dash.dependencies.State('day-of-week-checklist', 'value')]
+     dash.dependencies.State('day-of-week-checklist', 'value'),
+     dash.dependencies.State('user-id', 'data'),]
 )
+
 def save_routine(n_clicks, cur_routine_num,username,start_address, end_address, start_time, end_time, days_of_week):
     if n_clicks == 0:
         raise PreventUpdate
