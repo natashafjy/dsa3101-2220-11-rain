@@ -244,7 +244,7 @@ def save_routine(n_clicks,user_name,start_address, end_address, start_time, end_
 
     start_lat,start_long = get_location(start_address)
     end_lat,end_long = get_location(end_address)        
-    param = {'username':username,
+    param = {'username':user_name,
              'start_address': start_address,
              'start_long':start_long,
              'start_lat':start_lat,
