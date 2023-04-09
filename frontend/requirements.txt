@@ -57,8 +57,8 @@ ipython==8.11.0
 ipywidgets==8.0.4
 isoduration==20.11.0
 itsdangerous==2.1.2
-jax==0.4.5
-jaxlib==0.4.4
+#jax
+#jaxlib
 jedi==0.18.2
 joblib==1.2.0
 jsonpointer==2.3

@@ -1,4 +1,4 @@
-FROM python:3.10.6-slim-buster
+FROM python:3.9-slim-buster
 
 ## Add Python script, requirements file and templates folder to /app 
 ## directory on the image:
@@ -20,6 +20,16 @@ COPY get_data_from_api.py get_data_from_api.py
 COPY get_next_30_min_pred.py get_next_30_min_pred.py
 COPY xgboost_model.json xgboost_model.json
 COPY data.csv data.csv
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        make \
+        libc-dev \
+        python3-dev
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
