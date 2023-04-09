@@ -251,6 +251,9 @@ def update_routine_info(selected_routine,data):
     days_of_week = ""
     src = default_map_url
     check_exists = dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine')
+    cur_routine_num = 'not selected'
+    cur_routine_start = 'not selected'
+    cur_routine_end = 'not selected'
 
     # if there is any routine selected
     if selected_routine:

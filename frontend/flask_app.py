@@ -40,7 +40,6 @@ def login():
 
     #assumes unique (username)
     password_set = set(map(lambda x: x[-1], all_rows))
-    cprint(f'password_set is {password_set}')
     if password_input in password_set:
         password_match = True
     
