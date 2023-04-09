@@ -253,7 +253,7 @@ def save_routine(n_clicks,user_name,start_address, end_address, start_time, end_
              'end_lat':end_lat,
              'start_time': start_time,
              'end_time': end_time,
-             'days_of_week': days_of_week
+             'days_of_week': ''.join(days_of_week)
              }
 
     url_add_routine = 'http://127.0.0.1:5001/api/add_routine'
