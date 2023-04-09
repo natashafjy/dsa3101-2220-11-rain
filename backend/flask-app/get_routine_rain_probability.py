@@ -53,16 +53,16 @@ def get_routine_rain_probability(predicted_data, points_of_interest):
             # calculate standard deviation, and calculate probability using CDF
             rain_probability_df["sd"] = np.sqrt(rain_probability_df["variance"])
             rain_probability_df["P=0"] = scipy.stats.norm(loc=rain_probability_df["rain"], scale=rain_probability_df["sd"]).cdf(0)
-            rain_probability_df["predicted_rain"] = round(rain_probability_df["rain"], 1)
+            # rain_probability_df["predicted_rain"] = round(rain_probability_df["rain"], 1)
             # no need: rain_probability_df["P=rain_rounded"] = scipy.stats.norm(loc=rain_probability_df["rain"], scale=rain_probability_df["sd"]).cdf(rain_probability_df["rain_rounded"])
 
             # add precipitation values and their associated probabilities to df
             prob_of_rain = round(1 - rain_probability_df["P=0"].mean(), 3)
 
             if point_num == 0:
-                start_point_pred_lst.append([point_long, point_lat, time, rain_probability_df["predicted_rain"].mean(), prob_of_rain])
+                start_point_pred_lst.append([point_long, point_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
             else: 
-                end_point_pred_lst.append([point_long, point_lat, time, rain_probability_df["predicted_rain"].mean(), prob_of_rain])
+                end_point_pred_lst.append([point_long, point_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
 
     # convert list of lists into dataframe
     start_point_pred_df = pd.DataFrame(start_point_pred_lst, columns=["longitude", "latitude", "time", "predicted_rain", "P(predicted_rain > 0)"])
