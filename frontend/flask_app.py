@@ -20,9 +20,6 @@ def cprint(val):
 
 @app.route("/api/login", methods=["GET"])
 def login():
-    '''
-    To be implemented
-    '''
     # POST Request
     exist_in_db = True
     password_match = False
@@ -43,7 +40,6 @@ def login():
 
     #assumes unique (username)
     password_set = set(map(lambda x: x[-1], all_rows))
-    cprint(f'password_set is {password_set}')
     if password_input in password_set:
         password_match = True
     
@@ -55,13 +51,8 @@ def login():
 
 @app.route("/api/signup", methods=["POST"])
 def sign_up():
-    '''
-    To be implemented
-    '''
     #else POST
     exist_in_db = True
-    added_to_db = False
-
     # Assumes data comes in as a form-data
     # cprint(f'req.form = {request.form}')   
     username, password = request.args.get("username"), request.args.get("password")
@@ -91,18 +82,14 @@ def sign_up():
         exist_in_db = False
         cursor.execute(add_user_query, (username, password) )
         db.commit()
-        added_to_db = True
 
     cursor.close()
     db.close()
-    response = {"exist": exist_in_db, "success": added_to_db}
+    response = {"exist": exist_in_db}
     return jsonify(response)
 
 @app.route("/api/gallery", methods = ["GET"])
 def gallery():
-    """
-    To be implemented
-    """
     #access the username
     username = request.args.get("username")
     #get all routines
@@ -126,9 +113,6 @@ def gallery():
 
 @app.route("/api/add_routine", methods=["POST"])
 def add_routine():
-    '''
-    To be implemented
-    '''
     latest_routine_query = """
     SELECT COUNT(*)
     FROM ROUTINES R1

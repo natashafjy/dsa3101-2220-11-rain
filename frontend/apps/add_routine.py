@@ -22,6 +22,7 @@ import pathlib
 from app import app
 import requests
 
+from geopy.geocoders import GoogleV3
 load_figure_template('MORPH')
 
 # setting up dataframe
@@ -50,6 +51,14 @@ SIDEBAR_STYLE = {
     "background-color": "#f8f9fa",
     # "color" : "#4A6FA5"
 }
+
+api_key = 'AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8'
+def get_location(address):
+    geolocator = GoogleV3(api_key=api_key)
+    location = geolocator.geocode(address, components={'country': 'SG'})
+    latitude = location.latitude
+    longtitude = location.longitude
+    return[latitude,longtitude]
 
 def build_sidebar_add_routine():
     '''
@@ -214,7 +223,6 @@ def update_map(start_address, end_address):
     Output('save-action','children')
     ],
     [Input('save-button', 'n_clicks'),
-     Input('cur_routine_num', 'data'),
      Input('user-id', 'data')],
 
     [dash.dependencies.State('start-address-dropdown', 'value'),
@@ -224,7 +232,7 @@ def update_map(start_address, end_address):
      dash.dependencies.State('day-of-week-checklist', 'value'),]
 )
 
-def save_routine(n_clicks, cur_routine_num,username,start_address, end_address, start_time, end_time, days_of_week):
+def save_routine(n_clicks,user_name,start_address, end_address, start_time, end_time, days_of_week):
     if n_clicks == 0:
         raise PreventUpdate
 
@@ -234,21 +242,22 @@ def save_routine(n_clicks, cur_routine_num,username,start_address, end_address, 
         return html.Div(children=dbc.Alert('Please check input format', color='warning', duration=None)), dbc.Button("save", size = "md", id="save-button", n_clicks=0,style = {"left":"7rem"})
 
 
-    routine_num = int(cur_routine_num)  + 1
-
-    cur_routine_dict = {
-        'start_point': start_address,
-        'end_point': end_address,
-        'start_time_value': start_time,
-        'end_time_value': end_time,
-        'days_of_week': days_of_week
-    }
-    param = {'username':username,
-             'routine_num':routine_num, 
-             'routine_info':cur_routine_dict}
+    start_lat,start_long = get_location(start_address)
+    end_lat,end_long = get_location(end_address)        
+    param = {'username':user_name,
+             'start_address': start_address,
+             'start_long':start_long,
+             'start_lat':start_lat,
+             'end_address': end_address,
+             'end_long':end_long,
+             'end_lat':end_lat,
+             'start_time': start_time,
+             'end_time': end_time,
+             'days_of_week': days_of_week
+             }
 
     url_add_routine = 'http://127.0.0.1:5001/api/add_routine'
-    req = requests.post(url_add_routine, json = param)
+    req = requests.post(url_add_routine, params = param)
     return html.Div(children=dbc.Alert('Save successful!', color='success', duration=None)),dcc.Link(dbc.Button("Click to gallery!", color="primary"),href='/gallery')
 
 ## callback to check start-time is before end-time 
