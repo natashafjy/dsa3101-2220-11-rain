@@ -103,7 +103,7 @@ def gallery():
 
     #check number of routines user has
     cursor.execute(latest_routine_query, (username,) )
-    routine_keys = ["start_point", "end_point", "start_time_value", "end_time_value", "days_of_week "]
+    routine_keys = ["start_point", "end_point", "start_time_value", "end_time_value", "days_of_week"]
     all_routines = cursor.fetchall()
     all_routines = {f'routine{indx}': dict(zip(routine_keys,val)) for indx,val in enumerate(all_routines, start=1)}
     response = {"routine_num": len(all_routines), 
