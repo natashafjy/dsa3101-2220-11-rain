@@ -28,8 +28,6 @@ RUN apt-get update && \
         make \
         libc-dev \
         python3-dev
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt

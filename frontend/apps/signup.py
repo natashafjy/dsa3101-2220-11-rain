@@ -81,8 +81,8 @@ layout = html.Div([
      dash.dependencies.State('password', 'value')]
 )
 def sign_up(n_clicks, username, password):
-    if n_clicks > 0 and (username == '' or not username or password == '' or not password):
-        return  html.Div(children=dbc.Alert('Please key in both username and password!', color='danger', duration=None)),before_verify()
+    if n_clicks > 0 and (not username or not password or username.strip() == '' or password.strip() == ''):
+        return  html.Div(children=dbc.Alert('Please key in both username and password(without empty space)!', color='danger', duration=None)),before_verify()
     if username == '' or not username or password == '' or not password:
         return  html.Div(children=''),before_verify()
     else:

@@ -234,6 +234,9 @@ layout = dbc.Row([
     Output("day-of-week-div", 'children'),
     Output('map-iframe-gallery', 'src'),
     Output('check-routine-exist','children'),
+    Output('routine-selected-store', 'data'),
+    Output('cur-routine-start', 'data'),
+    Output('cur-routine-end', 'data'),
     Input('routine-dropdown-3', 'value'),
     Input('user-id', 'data')
 )
@@ -274,16 +277,18 @@ def update_routine_info(selected_routine,data):
             html.Br(),
             dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine')
             ]
+        cur_routine_num = 'routine' + str(selected_routine)
+        cur_routine_start = routine[routine_num]['start_point']
+        cur_routine_end = routine[routine_num]['end_point']
 
 
-    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week,src,check_exists
+    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week,src,check_exists,cur_routine_num,cur_routine_start,cur_routine_end
 
 
 
 ## callback to update routine options in the dropdown menu
 @app.callback(
     Output('routine-dropdown-3', 'options'),
-    Output('cur_routine_num','data'),
     Input('user-id', 'data')
 )
 def update_routine_options(data):
@@ -295,19 +300,4 @@ def update_routine_options(data):
         r1 = requests.get(url1, params=param1)       
         r1_data = r1.json()
         routine = r1_data['routine']
-        routine_num = r1_data['routine_num']
-        return generate_routine_options(routine),routine_num
-        
-
-## callback to save the choice of routine, for use in results page
-@app.callback(
-    Output('routine-selected-store', 'data'),
-    Input('routine-dropdown-3', 'value')
-)
-def update_store_routine(selected_routine):
-    if selected_routine:
-        routine_num = 'routine' + str(selected_routine)
-        return routine_num
-    else:
-        return "no routine selected"
-
+        return generate_routine_options(routine)
