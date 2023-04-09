@@ -19,9 +19,8 @@ import os
 import pathlib
 
 from app import app
-from shared import routine_dict, generate_routine_options
 default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
-
+import requests
 
 load_figure_template('MORPH')
 

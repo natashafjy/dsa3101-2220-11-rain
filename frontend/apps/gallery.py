@@ -18,8 +18,7 @@ import os
 import pathlib
 
 from app import app
-from shared import routine_dict, generate_routine_options
-
+import requests
 
 load_figure_template('MORPH')
 # Default map URL to display on app load
@@ -45,6 +44,14 @@ SIDEBAR_STYLE = {
     # "color" : "#4A6FA5"
 }
 
+def generate_routine_options(routine_dict):
+    options = []
+    count = 1
+    for routine_id in routine_dict.keys():
+        option = {'label': routine_id, 'value': str(count)}
+        count += 1
+        options.append(option)
+    return options
 
 
 def build_sidebar_gallery():
@@ -63,20 +70,8 @@ def build_sidebar_gallery():
             html.H4(id = "gallery-title", children = "Choose a existing routine or add a new routine!"),
             # drop-down to select routine
             dbc.Select(
-                id = "routine-dropdown-3",
-               # value = 'select a routine',
-                options = generate_routine_options()                
-                # ,value = 0
+                id = "routine-dropdown-3"
             ),
-            # dbc.DropdownMenu(
-            #             id = "routine-dropdown-2",
-            #             label = "routine",
-            #             children = [
-            #                 dbc.DropdownMenuItem("Select a routine", header = True),
-            #                 dbc.DropdownMenuItem(id = "dropdownItem1",label = "Routine 1"),
-            #                 dbc.DropdownMenuItem("Routine 2")
-            #                 ],
-            #             ),
             html.Br(),
            	
             html.H5("Starting point"),
@@ -154,52 +149,22 @@ def build_sidebar_gallery():
             html.Br(),
             
 
-            # save button
+
             html.Div(
                 id = "check-routine-exist"
             ),
 
 
-            # tips card 
             dbc.Card([
             ])
             
 
-            # dbc.Table.from_dataframe(df)
-            # 
-            #dbc.Table.from_dataframe(df.loc[:,["time","wetness"]], np.repeat(1, df.shape[0])], axis = 1), striped=True, bordered=True, hover=True)
     ],
     style = SIDEBAR_STYLE)
     return sidebar_gallery
 
 def build_map(): #Dongmen 3.29
     map = html.Div([
-
-    # html.Div([
-    #     html.Label('Starting Address'),
-    #     dcc.Input(
-    #         id='start-address-input',
-    #         type='text',
-    #         placeholder='Enter starting address'
-    #     ),
-    #     html.Div(id='start-address-dropdown'),
-    # ], style={'width': '45%', 'display': 'inline-block'}),
-
-    # html.Div([
-    #     html.Label('Ending Address'),
-    #     dcc.Input(
-    #         id='end-address-input',
-    #         type='text',
-    #         placeholder='Enter ending address'
-    #     ),
-    #     html.Div(id='end-address-dropdown'),
-    # ], style={'width': '45%', 'display': 'inline-block'}),
-
-    # html.Button(
-    #     'Submit',
-    #     id='submit-button',
-    #     n_clicks=0
-    # ),
 
     html.Div(
         id='map-container',
@@ -221,7 +186,14 @@ def build_map(): #Dongmen 3.29
     return map
 
 
-
+def generate_routine_options(routine_dict):
+    options = []
+    count = 1
+    for routine_id in routine_dict.keys():
+        option = {'label': routine_id, 'value': str(count)}
+        count += 1
+        options.append(option)
+    return options
 
 
 
@@ -250,25 +222,6 @@ layout = dbc.Row([
 )
     
 
-
-@app.callback(
-    Output('map-iframe-gallery', 'src'),
-    Input('routine-dropdown-3', 'value')
-)
-
-## callback to update route map
-def update_map(selected_routine):
-    global routine_dict
-    src = default_map_url
-    if selected_routine: # if there is any routine selected
-        routine_num = 'routine' + str(selected_routine)
-        start_address = routine_dict[routine_num]['start_point']
-        end_address = routine_dict[routine_num]['end_point']
-        src = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_address}&destination={end_address}"
-    return src
-    
-
-
 ## callback to update title, time, address
 @app.callback(
     Output('gallery-title', 'children'),
@@ -279,14 +232,12 @@ def update_map(selected_routine):
     Output('end-time-input', 'value'),
     Output('end-time-input', 'disabled'),
     Output("day-of-week-div", 'children'),
+    Output('map-iframe-gallery', 'src'),
     Output('check-routine-exist','children'),
-    Input('routine-dropdown-3', 'value')
+    Input('routine-dropdown-3', 'value'),
+    Input('user-id', 'data')
 )
-def update_routine_info(selected_routine):
-    '''
-    selected_routine: int, 1,2
-    '''
-    global routine_dict
+def update_routine_info(selected_routine,data):
     gallery_title = "Choose an existing routine or add a new routine!"
     start_point = " "
     end_point = " "
@@ -295,19 +246,28 @@ def update_routine_info(selected_routine):
     end_time_value = ""
     end_time_disabled = False
     days_of_week = ""
+    src = default_map_url
     check_exists = dcc.Link(dbc.Button("add new routine", size = "md", style = {"left":"1rem"}),href = '/add_routine')
 
     # if there is any routine selected
     if selected_routine:
+        url1 = 'http://127.0.0.1:5001/api/gallery'
+        param1 = {'username': str(data)}
+        r1 = requests.get(url1, params=param1)       
+        r1_data = r1.json()
+        routine = r1_data['routine']
+       
+
         routine_num = 'routine' + str(selected_routine)
         gallery_title = f'Current routine selected is {selected_routine}'
-        start_point = routine_dict[routine_num]['start_point']
-        end_point = routine_dict[routine_num]['end_point']
-        start_time_value = routine_dict[routine_num]['start_time_value']
+        start_point = routine[routine_num]['start_point']
+        end_point = routine[routine_num]['end_point']
+        start_time_value = routine[routine_num]['start_time_value']
         start_time_disabled = True
-        end_time_value = routine_dict[routine_num]['end_time_value']
+        end_time_value = routine[routine_num]['end_time_value']
         end_time_disabled = True
-        days_of_week = routine_dict[routine_num]['days_of_week']
+        days_of_week = routine[routine_num]['days_of_week']
+        src = f"https://www.google.com/maps/embed/v1/directions?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&mode=walking&origin={start_point}&destination={end_point}"
         check_exists = [
             dcc.Link(dbc.Button("go to current prediction page", size = "md", style = {"left":"1rem"}),href = '/results'),
             html.Br(),
@@ -316,19 +276,28 @@ def update_routine_info(selected_routine):
             ]
 
 
-    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week,check_exists
+    return gallery_title, start_point, end_point,start_time_value, start_time_disabled,end_time_value, end_time_disabled,days_of_week,src,check_exists
 
 
 
 ## callback to update routine options in the dropdown menu
 @app.callback(
     Output('routine-dropdown-3', 'options'),
-    Input('shared-store', 'data')
+    Output('cur_routine_num','data'),
+    Input('user-id', 'data')
 )
 def update_routine_options(data):
-    if data == "routine_saved":
-        return generate_routine_options()
-    return dash.no_update
+    if data == "":
+        return dash.no_update
+    else:
+        url1 = 'http://127.0.0.1:5001/api/gallery'
+        param1 = {'username': str(data)}
+        r1 = requests.get(url1, params=param1)       
+        r1_data = r1.json()
+        routine = r1_data['routine']
+        routine_num = r1_data['routine_num']
+        return generate_routine_options(routine),routine_num
+        
 
 ## callback to save the choice of routine, for use in results page
 @app.callback(

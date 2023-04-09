@@ -1,3 +1,4 @@
+from shared import user_routine_dict
 from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
@@ -197,7 +198,7 @@ def make_prediction():
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
-    
+   
     # convert to json 
     start_pred = start_pred_df.to_json()
     last_pred = last_pred_df.to_json()
