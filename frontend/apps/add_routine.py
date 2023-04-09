@@ -20,7 +20,6 @@ import os
 import pathlib
 
 from app import app
-from shared import generate_routine_options
 
 import requests
 

@@ -18,7 +18,6 @@ import os
 import pathlib
 
 from app import app
-from shared import generate_routine_options
 import requests
 
 load_figure_template('MORPH')
@@ -45,6 +44,14 @@ SIDEBAR_STYLE = {
     # "color" : "#4A6FA5"
 }
 
+def generate_routine_options(routine_dict):
+    options = []
+    count = 1
+    for routine_id in routine_dict.keys():
+        option = {'label': routine_id, 'value': str(count)}
+        count += 1
+        options.append(option)
+    return options
 
 
 def build_sidebar_gallery():
