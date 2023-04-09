@@ -19,7 +19,7 @@ COPY 5-nearest-stations.txt 5-nearest-stations.txt
 COPY get_data_from_api.py get_data_from_api.py
 COPY get_next_30_min_pred.py get_next_30_min_pred.py
 COPY xgboost_model.json xgboost_model.json
-
+COPY data.csv data.csv
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
@@ -27,4 +27,4 @@ RUN pip3 install -r requirements.txt
 ## Set the environment variable for the flask application here:
 ENV FLASK_APP flask_app
 # ENTRYPOINT [ "python", "-u", "-m", "flask", "run", "--host=0.0.0.0"]
-ENTRYPOINT [ "python", "-u", "-m", "index.py"]
+ENTRYPOINT [ "python", "-u", "index.py"]

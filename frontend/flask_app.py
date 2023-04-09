@@ -1,4 +1,4 @@
-from shared import user_routine_dict
+# from shared import user_routine_dict
 from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb

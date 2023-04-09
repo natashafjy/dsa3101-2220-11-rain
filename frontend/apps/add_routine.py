@@ -26,7 +26,7 @@ load_figure_template('MORPH')
 
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
-df_path = os.path.join(APP_PATH, os.path.join("../../outputs", "data.csv"))
+df_path = os.path.join(APP_PATH, os.path.join("../", "data.csv"))
 def update_df():
     new_df = pd.read_csv(df_path)
     return new_df
