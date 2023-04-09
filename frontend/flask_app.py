@@ -126,6 +126,7 @@ def add_routine():
                                  %(end_time)s, %(days_of_week)s)
     """
     #establish connection
+    print(f'req.args = {request.args}',flush=True)
     username = request.args.get("username")
     req_data = { "user_name":username, "start_address":request.args.get("start_address"), 
                  "start_long":request.args.get("start_long"),"start_lat":request.args.get("start_lat"),
@@ -133,6 +134,7 @@ def add_routine():
                   "end_lat":request.args.get("end_lat"), "start_time":request.args.get("start_time"),
                   "end_time":request.args.get("end_time"), "days_of_week":request.args.get("days_of_week"),                
                 }
+    print(req_data,flush=True)
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
     cursor = db.cursor()
 
@@ -140,7 +142,7 @@ def add_routine():
     cursor.execute(latest_routine_query, (username,) )
     next_count = cursor.fetchone()[0]
     next_count += 1
-    req_data["routine_num"] = next_count
+    req_data["routine_num"] = str(next_count)
 
     cursor.execute(insert_routine_query, params=req_data )
     db.commit()
