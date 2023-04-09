@@ -80,9 +80,11 @@ layout = html.Div([
     [dash.dependencies.State('username', 'value'),
      dash.dependencies.State('password', 'value')]
 )
-def validate_login(n_clicks, username, password):
+def sign_up(n_clicks, username, password):
+    if n_clicks > 0 and (username == '' or not username or password == '' or not password):
+        return  html.Div(children=dbc.Alert('Please key in both username and password!', color='danger', duration=None)),before_verify()
     if username == '' or not username or password == '' or not password:
-            return  html.Div(children=''),before_verify()
+        return  html.Div(children=''),before_verify()
     else:
         url1 = 'http://127.0.0.1:5001/api/signup'
         param1 = {'username': username, 'password':password}
