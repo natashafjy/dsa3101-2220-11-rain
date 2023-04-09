@@ -64,7 +64,7 @@ def sign_up():
 
     # Assumes data comes in as a form-data
     # cprint(f'req.form = {request.form}')   
-    username, password = request.ars.get("username"), request.args.get("password")
+    username, password = request.args.get("username"), request.args.get("password")
 
     exist_user_query = """
         SELECT *
@@ -151,7 +151,7 @@ def add_routine():
     #get latest routine_id
     cursor.execute(latest_routine_query, (username,) )
     next_count = cursor.fetchone()[0]
-    nex_count = + 1
+    next_count += 1
     req_data["routine_num"] = next_count
 
     cursor.execute(insert_routine_query, params=req_data )
@@ -163,7 +163,6 @@ def add_routine():
 
 @app.route("/api/results")
 def make_prediction():
-
     # 1. retrieve data from API and format data to fit into model
     curr_date, curr_time = get_curr_date_time()
     formatted_data = get_updated_data()
