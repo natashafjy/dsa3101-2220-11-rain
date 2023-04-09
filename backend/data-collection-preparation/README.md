@@ -1,0 +1,1 @@
+This folder contains code for collecting data and preparing the data to be used in model training.
