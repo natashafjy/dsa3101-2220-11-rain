@@ -126,9 +126,13 @@ def add_routine():
                                  %(end_time)s, %(days_of_week)s)
     """
     #establish connection
-    username = request.json["username"]
-    req_data = dict(request.form)
-
+    username = request.args.get("username")
+    req_data = { "user_name":username, "start_address":request.args.get("start_address"), 
+                 "start_long":request.args.get("start_long"),"start_lat":request.args.get("start_lat"),
+                  "end_address":request.args.get("end_address"), "end_long":request.args.get("end_long"),
+                  "end_lat":request.args.get("end_lat"), "start_time":request.args.get("start_time"),
+                  "end_time":request.args.get("end_time"), "days_of_week":request.args.get("days_of_week"),                
+                }
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
     cursor = db.cursor()
 
