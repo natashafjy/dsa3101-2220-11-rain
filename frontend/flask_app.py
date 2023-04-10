@@ -151,7 +151,7 @@ def add_routine():
     db.close()
     return "Added_routine"
 
-@app.route("/api/results")
+@app.route("/api/results", methods=["GET"])
 def make_prediction():
     # 1. retrieve data from API and format data to fit into model
     curr_date, curr_time = get_curr_date_time()
@@ -166,7 +166,7 @@ def make_prediction():
     # 3. generate probabilities
     # Assumes GET request has data = {"user_name": username, "routine_id": id}
     username, routine_id = request.args.get("username"), request.args.get("routine_num")
-    
+
     routine_info_query = """
         SELECT R1.start_long, R1.start_lat, R1.end_long, R1.end_lat
         FROM ROUTINES R1
@@ -176,7 +176,7 @@ def make_prediction():
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
     cursor = db.cursor()
     cursor.execute(routine_info_query, (username, routine_id) )
-    points_of_interest = cursor.fetchone()[0]
+    points_of_interest = cursor.fetchone()
     points_of_interest = tuple(map(lambda x: float(x),points_of_interest))
     points_of_interest = [points_of_interest[:2], points_of_interest[2:]]
     cursor.close()
@@ -187,7 +187,7 @@ def make_prediction():
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
-   
+
     # convert to json 
     start_pred = start_pred_df.to_json()
     last_pred = last_pred_df.to_json()
@@ -201,3 +201,4 @@ def make_prediction():
     response["last_rain_end"] = last_rain_end
 
     return jsonify(response)
+
