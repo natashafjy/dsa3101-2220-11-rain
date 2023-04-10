@@ -1,4 +1,3 @@
-# from shared import user_routine_dict
 from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
@@ -20,7 +19,6 @@ def cprint(val):
 
 @app.route("/api/login", methods=["GET"])
 def login():
-    # POST Request
     exist_in_db = True
     password_match = False
 
@@ -51,10 +49,8 @@ def login():
 
 @app.route("/api/signup", methods=["POST"])
 def sign_up():
-    #else POST
     exist_in_db = True
-    # Assumes data comes in as a form-data
-    # cprint(f'req.form = {request.form}')   
+
     username, password = request.args.get("username"), request.args.get("password")
 
     exist_user_query = """
@@ -72,10 +68,6 @@ def sign_up():
     #check if user in db
     cursor.execute(exist_user_query, (username,) )
     rows = cursor.fetchall()
-
-    #assumes unique (username)
-    password_set = set(map(lambda x: x[-1], rows))
-    # cprint(f'password_set is {password_set}')
 
     #add users if user_name not taken
     if len(rows) == 0 :
@@ -140,9 +132,8 @@ def add_routine():
 
     #get latest routine_id
     cursor.execute(latest_routine_query, (username,) )
-    next_count = cursor.fetchone()[0]
-    next_count += 1
-    req_data["routine_num"] = str(next_count)
+    next_count = cursor.fetchone()[0] + 1
+    req_data["routine_num"] = next_count
 
     cursor.execute(insert_routine_query, params=req_data )
     db.commit()
@@ -151,7 +142,7 @@ def add_routine():
     db.close()
     return "Added_routine"
 
-@app.route("/api/results")
+@app.route("/api/results", methods=["GET"])
 def make_prediction():
     # 1. retrieve data from API and format data to fit into model
     curr_date, curr_time = get_curr_date_time()
@@ -166,7 +157,7 @@ def make_prediction():
     # 3. generate probabilities
     # Assumes GET request has data = {"user_name": username, "routine_id": id}
     username, routine_id = request.args.get("username"), request.args.get("routine_num")
-    
+
     routine_info_query = """
         SELECT R1.start_long, R1.start_lat, R1.end_long, R1.end_lat
         FROM ROUTINES R1
@@ -176,7 +167,7 @@ def make_prediction():
     db = mysql.connector.connect(host="db", user="root", password="examplePW",database="rainfall")
     cursor = db.cursor()
     cursor.execute(routine_info_query, (username, routine_id) )
-    points_of_interest = cursor.fetchone()[0]
+    points_of_interest = cursor.fetchone()
     points_of_interest = tuple(map(lambda x: float(x),points_of_interest))
     points_of_interest = [points_of_interest[:2], points_of_interest[2:]]
     cursor.close()
@@ -187,7 +178,7 @@ def make_prediction():
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)
-   
+
     # convert to json 
     start_pred = start_pred_df.to_json()
     last_pred = last_pred_df.to_json()
