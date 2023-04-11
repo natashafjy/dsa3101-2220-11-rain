@@ -243,7 +243,8 @@ def build_island_map(df):
                      height = 800,
                      # hover_name = "station_name",
                      hover_data = {"predicted_rain":':.2f', 
-                                   "P(predicted_rain > 0)": ':.2f',
+#                                    "P(predicted_rain > 0)": ':.2f',
+                                   "P(predicted_rain > 0)": False,
                                    'longitude':False,
                                    'latitude': False
                                    }
