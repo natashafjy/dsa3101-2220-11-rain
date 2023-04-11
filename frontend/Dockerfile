@@ -13,7 +13,6 @@ COPY app.py app.py
 COPY flask_app.py flask_app.py
 COPY get_routine_rain_probability.py get_routine_rain_probability.py
 COPY get_last_rain.py get_last_rain.py
-COPY get_island_rain_probability.py get_island_rain_probability.py
 COPY index.py index.py
 COPY 5-nearest-stations.txt 5-nearest-stations.txt
 COPY get_data_from_api.py get_data_from_api.py
