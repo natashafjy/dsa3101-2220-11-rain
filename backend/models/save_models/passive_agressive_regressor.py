@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 import numpy as np
 import pickle
@@ -17,8 +11,16 @@ np.random.seed(3101)
 
 def preprocess(df):
     """
-    input: pandas dataframe
-    output: pandas dataframe
+    The function removes the columns date, time, station and T{i}S{j}_station number, where i,j ranges from 1 to 6 (inclusive)
+    These columns are removed as they are not useful features for the model and are only there for human understandability.
+    Any NA values are replaced with 0.
+
+    Args:
+        df (pandas dataframe): data that has been read in from sliding_window_data.csv.  
+    
+    Returns:
+        pandas dataframe with no NA values and the stated columns dropped.
+
     """
     #drop the date, time and station labels 
     drop_cols = ["date","time","station"]
@@ -31,7 +33,16 @@ def preprocess(df):
 
 def train(df_iterator):
     """
-    input : df_iterator, pandas iterator which gives batches of dataframe which includes the train_label in the 1st column and the remaining columns are feature variables
+    Fits a PassiveAggressiveRegressor with the specified parameters on the full train dataset given in the form of an iterator.
+
+    Args:
+        df_iterator (pandas TextFileReader): iterator for the train_dataset with 
+        train_label in the 1st column and remaining columns are the feature 
+        variables.
+
+    Returns:
+        A trained PassiveAggressiveRegressor instance
+
     """
     regression_model= PassiveAggressiveRegressor(C=0.01,random_state=seed, shuffle=True)
     for batch in tqdm(df_iterator):
@@ -41,6 +52,20 @@ def train(df_iterator):
 
 
 def evaluate(y_pred,y_true):
+    """
+    Calculates False Negative rate, False Positive Rate and F1 score of the model prediction
+    and prints the 3 metrics to 5dp.
+    Assumes any value > 0.0 is considered as prediction as rain.
+
+    Args:
+        y_pred (pandas dataframe): predicted labels from the model
+        y_true (pandas dataframe): true label
+    
+    Returns:
+        List containing the 3 metrics calculated in the order of 
+        [False Negative Rate, False Positive Rate and F1 score]
+
+    """
     threshold = 0.0
     result = pd.DataFrame({'predicted': y_pred, 'actual': y_true}, columns=['predicted', 'actual'])
     fn = result[result['actual'] > threshold]
@@ -63,8 +88,12 @@ def evaluate(y_pred,y_true):
 
 def save(model, filename):
     """
-    inputs: model, filename : saves model to filename location
-    outputs: None
+    Saved the model to the given filename as a pickle file
+
+    Args:
+        model: Trained model to be saved
+        filename : file name where model is to be saved
+    
     """
     pickle.dump(model, open(filename, "wb"))
 
