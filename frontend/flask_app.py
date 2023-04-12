@@ -1,4 +1,3 @@
-# from shared import user_routine_dict
 from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
@@ -19,7 +18,6 @@ def cprint(val):
 
 @app.route("/api/login", methods=["GET"])
 def login():
-    # POST Request
     exist_in_db = True
     password_match = False
 
@@ -50,10 +48,7 @@ def login():
 
 @app.route("/api/signup", methods=["POST"])
 def sign_up():
-    #else POST
     exist_in_db = True
-    # Assumes data comes in as a form-data
-    # cprint(f'req.form = {request.form}')   
     username, password = request.args.get("username"), request.args.get("password")
 
     exist_user_query = """
@@ -71,10 +66,6 @@ def sign_up():
     #check if user in db
     cursor.execute(exist_user_query, (username,) )
     rows = cursor.fetchall()
-
-    #assumes unique (username)
-    password_set = set(map(lambda x: x[-1], rows))
-    # cprint(f'password_set is {password_set}')
 
     #add users if user_name not taken
     if len(rows) == 0 :
@@ -139,9 +130,8 @@ def add_routine():
 
     #get latest routine_id
     cursor.execute(latest_routine_query, (username,) )
-    next_count = cursor.fetchone()[0]
-    next_count += 1
-    req_data["routine_num"] = str(next_count)
+    next_count = cursor.fetchone()[0] + 1
+    req_data["routine_num"] = next_count
 
     cursor.execute(insert_routine_query, params=req_data )
     db.commit()
@@ -205,4 +195,3 @@ def make_prediction():
     response["last_rain_end"] = last_rain_end
 
     return jsonify(response)
-
