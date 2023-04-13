@@ -161,7 +161,7 @@ def plot_precipitation(df):
 
     precipitation_bar = px.bar(df, x = 'time', y = 'predicted_rain', color = 'P(predicted_rain > 0)',
                         color_continuous_scale="blues",
-                        labels={'time':'minutes from now', 'P(predicted_rain > 0)':'precipitation in mm'},
+                        labels={'time':'minutes from now', 'P(predicted_rain > 0)':'P(predicted_rain > 0)'},
                         height = 230,
                         title = "precipitation in the next 30 minutes",
                         hover_data = {'time':False})
