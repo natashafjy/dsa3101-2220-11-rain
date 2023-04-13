@@ -1,18 +1,9 @@
 import pandas as pd
 import numpy as np
-import utm
 import pykrige
 import scipy
 
 station_data = pd.read_csv("data/station_data.csv", index_col = 0, dtype = {"device_id":"string", "name":"string", "latitude":"float64", "longitude":"float64"})
-
-projected_coords = []
-
-for idx, row in station_data.iterrows():
-    device_id, name, latitude, longitude = row
-    projected_coords +=  (device_id,) + utm.from_latlon(latitude, longitude),
-
-xy_station_data = station_data.merge(pd.DataFrame(projected_coords, columns=["device_id", "EASTING", "NORTHING", "ZONE_NUMBER", "ZONE_LETTER"]), on = "device_id")
 
 def get_routine_rain_probability(predicted_data, points_of_interest):
     """
@@ -22,33 +13,27 @@ def get_routine_rain_probability(predicted_data, points_of_interest):
     output:
         dataframe of longitude, latitude, time, precipitation (mm), probability that rain = 0
     """
-    data = predicted_data.merge(xy_station_data, left_on="station", right_on="device_id")
+
+    data = predicted_data.merge(station_data, left_on="station", right_on="device_id")
 
     start_point_pred_lst = []
     end_point_pred_lst = []
 
-    poi1_lat, poi1_long = points_of_interest[0][1], points_of_interest[0][0]
-    poi2_lat, poi2_long = points_of_interest[1][1], points_of_interest[1][0]
-    xy_points_of_interest = []
-    xy_points_of_interest += utm.from_latlon(poi1_lat, poi1_long),
-    xy_points_of_interest += utm.from_latlon(poi2_lat, poi2_long),
-
     for time in range(0, 31, 5):
         data_at_time = data[data["time"] == time]
-        x = np.array(data_at_time["EASTING"])
-        y = np.array(data_at_time["NORTHING"])
+        x = np.array(data_at_time["longitude"])
+        y = np.array(data_at_time["latitude"])
         z = np.array(data_at_time["value"])
     
-        ordinary_kriging = pykrige.OrdinaryKriging(x, y, z)
+        ordinary_kriging = pykrige.OrdinaryKriging(x, y, z, coordinates_type = "geographic", variogram_model = "gaussian")
 
-        for point_num in range(len(xy_points_of_interest)):
+        for point_num in range(len(points_of_interest)):
 
-            point_lat, point_long = points_of_interest[point_num][0], points_of_interest[point_num][1]
+            point_long, point_lat = points_of_interest[point_num][0], points_of_interest[point_num][1]
 
             # form grid of values around point
-            gridx = np.arange(point_long-50, point_long+50, 0.5, dtype = "float64")
-            gridy = np.arange(point_lat-50, point_lat+50, 0.5, dtype = "float64")
-
+            gridx = np.arange(point_long-0.0005, point_long+0.0005, 0.0001, dtype = "float64")
+            gridy = np.arange(point_lat-0.0005, point_lat+0.0005, 0.0001, dtype = "float64")
 
             # obtain predicted values and their variances using kriging
             zstar, ss = ordinary_kriging.execute("grid", gridx, gridy)
@@ -75,13 +60,12 @@ def get_routine_rain_probability(predicted_data, points_of_interest):
             prob_of_rain = round(1 - rain_probability_df["P=0"].mean(), 3)
 
             if point_num == 0:
-                start_point_pred_lst.append([poi1_long, poi1_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
+                start_point_pred_lst.append([point_long, point_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
             else: 
-                end_point_pred_lst.append([poi2_long, poi2_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
+                end_point_pred_lst.append([point_long, point_lat, time, round(rain_probability_df["rain"].mean(), 1), prob_of_rain])
 
     # convert list of lists into dataframe
     start_point_pred_df = pd.DataFrame(start_point_pred_lst, columns=["longitude", "latitude", "time", "predicted_rain", "P(predicted_rain > 0)"])
     end_point_pred_df = pd.DataFrame(end_point_pred_lst, columns=["longitude", "latitude", "time", "predicted_rain", "P(predicted_rain > 0)"])
     return start_point_pred_df, end_point_pred_df
-
 
