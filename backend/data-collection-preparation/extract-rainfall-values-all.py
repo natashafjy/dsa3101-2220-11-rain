@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 
 
-def extract_rainfall_values_all(save_intermediate_data = True, save_final_data = True):
+def extract_rainfall_values_all(save_intermediate_data = True, save_final_data = True, drop_0_vals = False):
     """
     This function extracts rainfall values from the dates extracted by the weather-data.py code, which is stored in the rainy_days_15mm.csv file.
 
@@ -10,7 +10,8 @@ def extract_rainfall_values_all(save_intermediate_data = True, save_final_data =
 
     Args:
         save_intermediate_data (default value = True): saves the raw data obtained from the data.gov.sg API into a csv file named "rain_values_15mm.csv"
-        save_final_data (default value = True): saves the melted data without 0's or NaN's into a csv file named "rain_data.csv"
+        save_final_data (default value = True): saves the melted data without 0's or NaN's into a csv file named "rain_data.csv" if drop_0_vals is True, else save as "rain_data_all.csv"
+        drop_0_vals (default value = False): if True, drop rows where rain value == 0mm or NaN, otherwise keep in data set
 
     Return:
         pandas dataframe with the following columns: "date", "time", "station", "value"
@@ -61,10 +62,12 @@ def extract_rainfall_values_all(save_intermediate_data = True, save_final_data =
     # reshape dataframe
     melted_df = new_df.melt(id_vars = ["timestamp"], var_name = "station")
 
-    # remove NaNs and 0's from "values" column
-    final_df = melted_df.dropna()
-    no_rain_idx = final_df[ (final_df["value"] == 0)].index
-    final_df.drop(no_rain_idx, inplace=True)
+    if drop_0_vals:
+        # remove NaNs and 0's from "values" column
+        final_df = melted_df.dropna()
+        no_rain_idx = final_df[ (final_df["value"] == 0)].index
+        final_df.drop(no_rain_idx, inplace=True)
+    
     final_df.reset_index(drop = True, inplace = True)
 
     # split timestamp column into 3 cols
@@ -76,7 +79,10 @@ def extract_rainfall_values_all(save_intermediate_data = True, save_final_data =
     
     # export data
     if save_final_data is True:
-        final_df.to_csv("../data/rain_data.csv")
+        if drop_0_vals:
+            final_df.to_csv("../data/rain_data.csv")
+        else:
+            final_df.to_csv("../data/rain_data_all.csv")
 
     return final_df
 
