@@ -20,13 +20,13 @@ COPY get_next_30_min_pred.py get_next_30_min_pred.py
 COPY xgboost_model.json xgboost_model.json
 COPY data.csv data.csv
 
-# RUN apt-get update && \
-#     apt-get install -y --no-install-recommends \
-#         gcc \
-#         g++ \
-#         make \
-#         libc-dev \
-#         python3-dev
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        make \
+        libc-dev \
+        python3-dev
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
