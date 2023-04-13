@@ -2,7 +2,6 @@ from flask import Flask, jsonify, request
 import mysql.connector
 import xgboost as xgb
 from get_routine_rain_probability import *
-from get_island_rain_probability import *
 from get_last_rain import *
 from get_data_from_api import *
 from get_next_30_min_pred import *
@@ -50,7 +49,6 @@ def login():
 @app.route("/api/signup", methods=["POST"])
 def sign_up():
     exist_in_db = True
-
     username, password = request.args.get("username"), request.args.get("password")
 
     exist_user_query = """
@@ -174,7 +172,12 @@ def make_prediction():
     db.close()
 
     start_pred_df, last_pred_df = get_routine_rain_probability(predicted_data, points_of_interest)
-    island_pred_df = get_island_rain_probability(predicted_data)
+
+    island_pred_df = predicted_data.merge(station_data, left_on="station", right_on="device_id")
+    island_pred_df = island_pred_df[["longitude", "latitude", "time", "value"]]
+    island_pred_df["predicted_rain"] = island_pred_df["value"]
+    island_pred_df["P(predicted_rain > 0)"] = 0.7 # remove when frontend graph is updated
+
 
     # 4. find most recent instance of rain at the start point and end point of user's routine
     last_rain_start, last_rain_end = get_last_rain(points_of_interest)

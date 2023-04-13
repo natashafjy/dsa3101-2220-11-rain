@@ -13,6 +13,13 @@ app.layout = html.Div([
     dcc.Store(id = 'routine-selected-store', storage_type = 'local'),
     dcc.Store(id = 'cur-routine-start', storage_type = 'local'),
     dcc.Store(id = 'cur-routine-end', storage_type = 'local'),
+    
+    ## pred result
+    dcc.Store(id = 'start-pred-json', storage_type = 'local'),
+    dcc.Store(id = 'end-pred-json', storage_type = 'local'),
+    dcc.Store(id = 'island-pred-json', storage_type = 'local'),
+    dcc.Store(id = 'last-rain-start', storage_type = 'local'),
+    dcc.Store(id = 'last-rain-end', storage_type = 'local'),
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content'),
 ])
