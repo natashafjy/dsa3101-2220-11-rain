@@ -1,201 +1,130 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
-from xgboost import plot_importance
-from sklearn.metrics import mean_squared_log_error
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import recall_score
-from sklearn.metrics import r2_score
+import pickle
+
+# Setting Seed value
+seed = 3101
+np.random.seed(seed)
+
+def preprocess(df):
+    """
+    The function removes the columns date, time, station and T{i}S{j}_station number, where i,j ranges from 1 to 6 (inclusive)
+    These columns are removed as they are not useful features for the model and are only there for human understandability.
+    Any NA values are replaced with 0.
+
+    Args:
+        df (pandas Dataframe): data that has been read in from sliding_window_data.csv.  
+    
+    Returns:
+        pandas Dataframe with no NA values and the stated columns dropped.
+
+    """
+    # drop the date, time and station labels 
+    drop_cols = ["date","time","station"]
+    for i in range(1,7):
+        for j in range(1,7):
+            drop_cols.append(f"T{i}S{j}_station number")
+    processed_df = df.drop(drop_cols, axis=1, inplace=False)
+    processed_df.fillna(value=0, inplace=True)
+    return processed_df
+
+
+def train(X_train, y_train):
+    """
+    Fits an XGBoost model on a subset of the full dataset given as input.
+
+    Args:
+        X_train (pandas Dataframe): training data for all features 
+        y_train (pandas Dataframe): labels for training data 
+
+    Returns:
+        A trained XGBoost model instance
+
+    """
+    model = xgb.XGBRegressor(n_estimators=500, 
+                             max_depth=10,
+                             grow_policy="lossguide",
+                             learning_rate=0.01,
+                             objective="reg:squarederror",
+                             reg_alpha=0.5,
+                             reg_lambda=0.5,
+                             tree_method="hist",
+                             random_state=seed,
+                             )
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate(y_pred, y_true):
+    """
+    Calculates False Negative rate, False Positive Rate and F1 score of the model prediction
+    and prints the 3 metrics to 5dp.
+    Assumes any value > 0.0 is considered as prediction as rain.
+
+    Args:
+        y_pred (pandas Dataframe): predicted labels from the model
+        y_true (pandas Dataframe): true label
+    
+    Returns:
+        List containing the 3 metrics calculated in the order of 
+        [False Negative Rate, False Positive Rate and F1 score]
+
+    """
+    threshold = 0.0
+    result = pd.DataFrame({'predicted': y_pred, 'actual': y_true}, columns=['predicted', 'actual'])
+    fn = result[result['actual'] > threshold]  ## all actual positives
+    fn = fn[round(fn['predicted'], 1) <= threshold]
+    fnr = len(fn) / len(result[result['actual'] > threshold])
+
+    fp = result[result['actual'] == threshold]  ## all actual negatives
+    fp = fp[round(fp['predicted'], 1) > threshold]
+    fpr = len(fp) / len(result[result['actual'] == threshold])
+
+    tp = result[result['actual'] > threshold] ## all actual positive
+    tp = tp[round(tp['predicted'], 1) > threshold]
+    tp = len(tp)
+
+    f1 = tp / (tp + 0.5*(len(fp) + len(fn)))
+    print(f'False negative rate (FN/FN+TP) is : {fnr:.5f}')
+    print(f'False positive rate (FP/FP+TN) is : {fpr:.5f}')
+    print(f'F1 score is [ TP/(TP + 0.5(FP+FN)) ]: {f1:.5f}')
+    return [fnr, fpr, f1]
+
+def save(model, filename):
+    """
+    Save the model to the given filename as a pickle file
+
+    Args:
+        model: Trained model to be saved
+        filename : file name where model is to be saved
+    
+    """
+    pickle.dump(model, open(filename, "wb"))
+
+
+# Import subset (2 million rows) of dataset
+# Pre-process data
+sliding_window_data = pd.read_csv('sliding_window_data.csv', nrows=2000000)
+cleaned_data = preprocess(sliding_window_data)
+X_all = cleaned_data.iloc[:,1:]
+y_all = cleaned_data.iloc[:,0]
 
-import shap
-import matplotlib.pyplot as plt
-#from tqdm.auto import tqdm
+# Train-Test split
+# Train 80% - Test 20%
+# Total number of rows = 2 million
+X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.2, random_state=seed)
 
+# Train XGBoost model
+xgboost_model = train(X_train, y_train)
 
-# In[7]:
+# Evaluate model performance and print some statistics
+prediction = xgboost_model.predict(X_test)
+evaluate(prediction, y_test)
 
+# Save model into XGBoost.pkl in current directory
+filename = "XGBoost.pkl"
+save(xgboost_model, filename)
 
-get_ipython().run_line_magic('cd', '"C:\\Users\\Angel\\Documents\\NUS\\Y3S2\\DSA3101 Data Science in Practice\\DSA3101\\project_backend\\sliding_window_data"')
-get_ipython().run_line_magic('pwd', '')
 
-# updated sliding window data dataset
-df_sliding = pd.read_csv('sliding_window_data-full.csv', nrows=5000000)
-df_sliding
-
-
-#10min for 10mil rows
-#~40s for 2mil rows
-#3min for 5mil rows
-
-
-# In[3]:
-
-
-df_sliding['date'].nunique()
-
-
-# In[4]:
-
-
-df_clean = df_sliding.fillna(0.0)
-df_clean
-
-#3min for 10mil rows
-#~10s for 2mil rows
-#~1min for 5mil rows
-
-
-# In[5]:
-
-
-# use all rain related data (i.e. use also relative time, station distance for each of the nearest 5 stations)
-X_all = df_clean.drop(['date','time','station','value', 
-                   'T1S1_station number', 'T1S2_station number', 'T1S3_station number','T1S4_station number','T1S5_station number','T1S6_station number', 
-                   'T2S1_station number', 'T2S2_station number', 'T2S3_station number','T2S4_station number','T2S5_station number','T2S6_station number', 
-                   'T3S1_station number', 'T3S2_station number', 'T3S3_station number','T3S4_station number','T3S5_station number','T3S6_station number', 
-                   'T4S1_station number', 'T4S2_station number', 'T4S3_station number','T4S4_station number','T4S5_station number','T4S6_station number', 
-                   'T5S1_station number', 'T5S2_station number', 'T5S3_station number','T5S4_station number','T5S5_station number','T5S6_station number', 
-                   'T6S1_station number', 'T6S2_station number', 'T6S3_station number','T6S4_station number','T6S5_station number','T6S6_station number'], 
-                   axis = 1)
-
-y_all = df_clean.loc[:, 'value']
-
-
-# In[6]:
-
-
-# to check
-y_all.isna().any()
-
-
-# ## Train the model
-
-# In[7]:
-
-
-X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.2, random_state=3101)
-
-
-# In[8]:
-
-
-model = xgb.XGBRegressor(
-    n_estimators=500,
-    max_depth=10,
-    grow_policy="lossguide",
-    learning_rate=0.01,
-    objective="reg:squarederror",
-    reg_alpha=0.5,
-    reg_lambda=0.5,
-    tree_method="hist",
-    random_state=3101,
-)
-model.fit(X_train, y_train)
-
-train_forecasts = model.predict(X_train)
-
-
-# ## Testing the model
-
-# In[9]:
-
-
-test_forecasts = model.predict(X_test)
-
-
-# In[10]:
-
-
-result = pd.DataFrame({'actual':y_test, 'predicted':test_forecasts})
-result
-
-
-# In[33]:
-
-
-# Metric: MSE
-test_mse = mean_squared_error(y_test, test_forecasts, squared=True)
-
-# Metric: MAE
-test_mae = mean_absolute_error(y_test, test_forecasts)
-
-threshold = 0.0
-# Metric: FN rate --> Worst Case: Predicted no rain, but rained
-fn = result[result['actual'] > threshold]  ## all actual positives
-fn = fn[round(fn['predicted'], 1) <= threshold]
-test_fnr = len(fn) / len(result[result['actual'] > threshold])
-
-# Metric: FP rate --> 2nd Worst Case: Predicted rain, but no rain
-fp = result[result['actual'] <= threshold]  ## all actual negatives
-fp = fp[round(fp['predicted'], 1) > threshold]
-test_fpr = len(fp) / len(result[result['actual'] <= threshold])
-
-# Metric: R-squared score
-test_r_squared = r2_score(y_test, test_forecasts)
-
-
-# In[34]:
-
-
-# Metrics output
-print("MSE is: {}".format(test_mse))
-print("MAE is: {}".format(test_mae))
-print("FN Rate is: {}".format(test_fnr))
-print("FP Rate is: {}".format(test_fpr))
-print("R-squared Score is: {}".format(test_r_squared))
-
-
-# ## Shapley Additive Explanation (SHAP) value
-# Reference: https://www.analyticsvidhya.com/blog/2019/11/shapley-value-machine-learning-interpretability-game-theory/ \n
-# Reference: https://www.kaggle.com/code/bryanb/xgboost-explainability-with-shap
-
-# In[ ]:
-
-
-# load JS visualization code to notebook
-shap.initjs()
-
-
-# In[ ]:
-
-
-X_sampled = X_train.sample(50000, random_state=3101)
-
-
-# In[ ]:
-
-
-explainer = shap.TreeExplainer(model)
-shap_values = explainer.shap_values(X_sampled)
-
-#~10min for 50000 samples from X_train
-
-
-# In[ ]:
-
-
-#shap.summary_plot(shap_values, features=X_sampled, feature_names=X_sampled.columns)
-
-
-# In[ ]:
-
-
-shap.summary_plot(shap_values, X_sampled, plot_type="bar")
-
-
-# In[ ]:
-
-
-# To save SHAP values summary
-#shap.summary_plot(shap_values, X_sampled, plot_type="bar", show=False)
-#plt.savefig("shap_summary.png",dpi=700)
 
