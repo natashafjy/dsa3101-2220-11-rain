@@ -25,3 +25,15 @@ dsa3101-2220-11-rain
         ├───save_models
         └───tests
 ```
+
+To do unit testing for models:
+```bash
+cd backend/models/tests
+pytest
+```
+
+To do unit testing for flask-app:
+```bash
+cd backend/flask-app
+pytest
+```
