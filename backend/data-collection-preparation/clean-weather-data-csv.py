@@ -6,7 +6,7 @@ def clean_weather_data(save_final_csv = True):
     Cleans data extracted from weather.gov
 
     Args:
-        save_final_csv (default value = True): saves final dataframe into a csv named "rainy_days_15mm.csv"
+        save_final_csv (default value = True): boolean value that determines if final dataframe is into a csv named "rainy_days_15mm.csv"
     
     Returns:
         pandas dataframe containing the columns: "Year", "Month", "Day" where daily rainfall total >= 15 mm.
@@ -50,4 +50,5 @@ def clean_weather_data(save_final_csv = True):
 
     return rainy_days
 
-
+if __name__ == "__main__":
+    clean_weather_data()

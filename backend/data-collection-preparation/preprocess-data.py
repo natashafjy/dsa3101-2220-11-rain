@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -115,4 +114,5 @@ def preprocess_data(save_data = True):
             writer_object.writerows(lst_of_rows)
 
 
-
+if __name__ == "__main__":
+    preprocess_data()

@@ -39,3 +39,5 @@ def extract_all_stations(save_data = True):
 
     return all_stations
 
+if __name__ == "__main__":
+    extract_all_stations()
