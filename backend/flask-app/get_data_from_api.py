@@ -43,22 +43,22 @@ def get_time_tuples(date_time_tuple, num):
         at 5-minute intervals before the given date, timestamp tuple
 
     """
-	date_str, time_str = date_time_tuple
-	datetime_obj = datetime.strptime(date_str + ' ' + time_str, '%Y-%m-%d %H:%M:%S')
-	result = []
-	if num == 6:
-		for i in range(7,13):
-			new_datetime_obj = datetime_obj - timedelta(minutes=i*5)
-			new_date_str = new_datetime_obj.strftime('%Y-%m-%d')
-			new_time_str = new_datetime_obj.strftime('%H:%M:%S')
-			result.append((new_date_str, new_time_str))
-	else:
-		for i in range(2,14):
-			new_datetime_obj = datetime_obj - timedelta(minutes=i*5)
-			new_date_str = new_datetime_obj.strftime('%Y-%m-%d')
-			new_time_str = new_datetime_obj.strftime('%H:%M:%S')
-			result.append((new_date_str, new_time_str))
-	return result
+    date_str, time_str = date_time_tuple
+    datetime_obj = datetime.strptime(date_str + ' ' + time_str, '%Y-%m-%d %H:%M:%S')
+    result = []
+    if num == 6:
+        for i in range(7,13):
+            new_datetime_obj = datetime_obj - timedelta(minutes=i*5)
+            new_date_str = new_datetime_obj.strftime('%Y-%m-%d')
+            new_time_str = new_datetime_obj.strftime('%H:%M:%S')
+            result.append((new_date_str, new_time_str))
+    else:
+        for i in range(2,14):
+            new_datetime_obj = datetime_obj - timedelta(minutes=i*5)
+            new_date_str = new_datetime_obj.strftime('%Y-%m-%d')
+            new_time_str = new_datetime_obj.strftime('%H:%M:%S')
+            result.append((new_date_str, new_time_str))
+    return result
 
 timestamps_extracted = get_time_tuples((current_date_str, current_time_str), 12)  # timestamps required to be retrieved using API
 
@@ -79,16 +79,19 @@ def extract_data(timestamps_extracted):
         pandas Dataframe containing rainfall data readings at all stations for the time period specified in timestamps_extracted
 
     """
+    data_df = []
     for row in timestamps_extracted:
-	    row_dt = row[0] + "T" + row[1]
-	    params = {"date_time": row_dt} # YYYY-MM-DD
-	    data_dict = requests.get(url, params=params).json()
-	    readings_lst = data_dict["items"]
-	    readings_df = pd.DataFrame.from_dict(readings_lst)
-	    data_df.append(readings_df)
+        row_dt = row[0] + "T" + row[1]
+        params = {"date_time": row_dt}
+        data_dict = requests.get(url, params=params).json()
+        readings_lst = data_dict["items"]
+        readings_df = pd.DataFrame.from_dict(readings_lst)
+        data_df.append(readings_df)
+    
+    data = pd.concat(data_df, ignore_index=True)
+    return data
         
-extract_data(timestamps_extracted)
-data = pd.concat(data_df, ignore_index=True)
+data = extract_data(timestamps_extracted)
 
 
 ## expand dataframe such that each row is date+time and columns are each stations
@@ -106,10 +109,10 @@ def spread_column(lst):
         at the corresponding weather station as its value
 
     """
-   	new_dict = dict()
-   	for ddict in lst:
+    new_dict = dict()
+    for ddict in lst:
    		new_dict[ddict["station_id"]] = ddict["value"]
-   	return new_dict
+    return new_dict
 data["loc_val"] = data["readings"].map(lambda entry: spread_column(entry))
 data = data.join(pd.json_normalize(data["loc_val"]))
 data = data.drop(columns = ["readings", "loc_val"])
