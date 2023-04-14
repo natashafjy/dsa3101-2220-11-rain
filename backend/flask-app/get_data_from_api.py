@@ -67,9 +67,13 @@ timestamps_extracted = get_time_tuples((current_date_str, current_time_str), 12)
 url = "https://api.data.gov.sg/v1/environment/rainfall"
 
 data_df = []
-def extract_data():
+def extract_data(timestamps_extracted):
     """
     This function retrieves rainfall data at all stations from API for the time period specified in timestamps_extracted.
+
+    Args:
+        timestamps_extracted (tuple of date (str), time (str)): a tuple of tuples containing date in string format
+        and timestamp in string format at which recorded rainfall value at this timing at all stations should be retrieved.
 
     Returns:
         pandas Dataframe containing rainfall data readings at all stations for the time period specified in timestamps_extracted
@@ -83,7 +87,7 @@ def extract_data():
 	    readings_df = pd.DataFrame.from_dict(readings_lst)
 	    data_df.append(readings_df)
         
-extract_data()
+extract_data(timestamps_extracted)
 data = pd.concat(data_df, ignore_index=True)
 
 
