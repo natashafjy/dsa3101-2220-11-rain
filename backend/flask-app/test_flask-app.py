@@ -4,24 +4,12 @@ import sqlite3
 
 @pytest.fixture
 def conn():
-    #connect to Test sqlite3 database with 1 user and 1 routine added
-    # con = sqlite3.connect("rainfall.db")
+    """
+    pytest fixture to create a connection to sqlite3 database
+    to mock a database connection
+    """
     con = sqlite3.connect(":memory:")
-    #yield cursor connection
     yield con
-
-# def mock_get_user_password(connection, username):
-#     exist_user_query = """
-#         SELECT *
-#         FROM USERS
-#         WHERE username = ?
-#      """
-#     cursor = connection.cursor()
-#     cursor.execute(exist_user_query, (username,))
-#     user_and_password = cursor.fetchall()
-#     cursor.close()
-#     return user_and_password
-
 
 def test_login_page_empty_get(mocker,conn):
     """
