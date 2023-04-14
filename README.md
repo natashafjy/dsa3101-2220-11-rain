@@ -61,7 +61,7 @@ To get a local copy up and running follow these simple steps.
    ```
 4. Deploy to a Docker container
    ```
-    docker compose up -d
+   docker compose up -d
    ```
 
 ### User Manual
