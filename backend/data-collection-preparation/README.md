@@ -10,3 +10,5 @@ The following table summarises the recommended flow of script execution and thei
 | extract-temp-humidity-direction-speed.py | extracts additional environment data from data.gov.sg | all_data.csv | not included in model training |
 | extract-stations.py | extract locations of all weather stations | station_data.csv | | 
 | preprocess-data.py | reshape data into format to be used in model training | sliding_window_data.csv | |
+
+`exploratory_notebooks` contain the `ipynb` notebooks used to train the models and do hyperparameter tuning.
