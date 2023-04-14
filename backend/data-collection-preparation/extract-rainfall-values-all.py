@@ -87,3 +87,5 @@ def extract_rainfall_values_all(save_intermediate_data = True, save_final_data =
     return final_df
 
 
+if __name__ == "__main__":
+    extract_rainfall_values_all()
