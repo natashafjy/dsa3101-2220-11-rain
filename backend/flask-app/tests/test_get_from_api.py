@@ -2,10 +2,6 @@ import pytest
 import pandas as pd
 import numpy as np
 
-# to import from dsa3101-2220-11-rain/backend/flask-app
-import sys
-sys.path.insert(0, "../")
-
 from get_data_from_api import *
 
 def test_get_current_time():
