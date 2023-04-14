@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, "backend/models/save_models")
 from MLPRegressor import evaluate
 
-def test_MLP_model():
+def test_MLP_metrics():
 
     y_pred = [1.0, 1.0, 1.0, 0, 0, 1.0, 1.0, 0, 0]
     y_true = [1.0, 1.0, 0, 0, 1.0, 0, 1.0, 1.0, 1.0]
@@ -27,8 +27,8 @@ def test_MLP_model():
     assert(math.isclose(test_f1, f1))
 
     assert ((fnr >= 0) and (fnr <= 1))
-    assert ((fnr >= 0) and (fnr <= 1))
-    assert ((fnr >= 0) and (fnr <= 1))
+    assert ((fpr >= 0) and (fpr <= 1))
+    assert ((f1 >= 0) and (f1 <= 1))
 
 
     
