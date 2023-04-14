@@ -144,3 +144,4 @@ widgetsnbextension==4.0.5
 xgboost==1.7.5
 zipp==3.12.1
 geopy==2.3.0
+tqdm==4.65.0

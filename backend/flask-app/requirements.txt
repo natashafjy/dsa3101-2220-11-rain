@@ -53,3 +53,4 @@ scipy==1.10.0
 scikit-learn==1.2.2
 pytest==7.3.0
 pytest-mock==3.10.0
+tqdm==4.65.0
