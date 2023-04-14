@@ -26,6 +26,17 @@ dsa3101-2220-11-rain
         ├───save_models
         └───tests
 ```
+
+`data-collection-preparation` contains the exploratory notebooks and scripts used to collect, clean, and reshape data to train our models.
+
+`data` contains some of the saved `csv` files generated from the code in `data-collection-preparation`. Some of the `csv` files we have used are not included here due to size limits on GitHub.
+
+`models` contains the exploratory notebooks and scripts used to train our models, as well as the saved models in the form of `pkl` files.
+
+`kriging` contains the exploratory notebooks used to interpolate rainfall values, and includes visualisations on weather station locations and heatmaps showing rainfall levels.
+
+`flask-app` contains the code and data used in the backend application.
+
 ---
 
 ## Prediction Workflow
