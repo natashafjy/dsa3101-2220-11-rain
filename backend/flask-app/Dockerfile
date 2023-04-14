@@ -7,10 +7,8 @@ WORKDIR /app
 COPY data data
 COPY backend.py backend.py
 COPY requirements.txt requirements.txt
-COPY get_data_from_api.py get_data_from_api.py
 COPY get_routine_rain_probability.py get_routine_rain_probability.py
 COPY get_last_rain.py get_last_rain.py
-COPY get_island_rain_probability.py get_island_rain_probability.py
 COPY 5-nearest-stations.txt 5-nearest-stations.txt
 COPY get_data_from_api.py get_data_from_api.py
 COPY get_next_30_min_pred.py get_next_30_min_pred.py
