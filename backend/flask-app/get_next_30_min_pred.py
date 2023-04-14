@@ -7,8 +7,19 @@ from get_data_from_api import *
 ## To predict rainfall at next 0, 5, 10, 15, 20, 25, 30 min for all stations
 def get_next_30_min_pred(curr_date, curr_time, data, data_pivot, xgboost_model):
     """
-    inputs: curr_date, curr_time in string of current time of prediction (to nearest past 5th-min)
-    outputs: pandas dataframe with columns (time in min from curr_time, station, predicted_rainfall_value)
+    This function returns the predicted rainfall values at all stations for 
+    time = 0, 5, 10, 15, 20, 25, 30 minutes after current time of prediction (to nearest past 5th-min).
+
+    Args: 
+        curr_date (str): Date in string of current time of prediction (to nearest past 5th-min)
+        curr_time (str): Timestamp in string of current time of prediction (to nearest past 5th-min)
+        data (pandas Dataframe): rainfall data for all stations from the past 1hr 10min at 5-min interval 
+                                 in pandas Dataframe with columns date, time, station, value
+        data_pivot (pandas Dataframe): pivoted data from data with each station as its own column and date, time as rows
+    
+    Returns:
+        pandas Dataframe with columns containing time in min from curr_time, station, predicted_rainfall_value
+        with column names time, station, value
     """
     all_predictions = []
     curr_dt_obj = datetime.strptime(curr_date + ' ' + curr_time, '%Y-%m-%d %H:%M:%S')
