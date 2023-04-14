@@ -14,8 +14,7 @@ dsa3101-2220-11-rain
     ├───flask-app
     │   │       
     │   ├───data
-    │   ├───dump
-    │   └───tests 
+    │   └───dump 
     │   
     ├───kriging
     │ 
