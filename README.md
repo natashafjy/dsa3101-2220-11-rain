@@ -67,6 +67,8 @@ To get a local copy up and running follow these simple steps.
 ### User Manual
 <details>
 <summary>Click me for detailed guide with images</summary>
+  
+  
 1. Sign up
 
     <img width="1512" alt="Screenshot 2023-04-14 at 10 48 20 PM" src="https://user-images.githubusercontent.com/77218431/232077649-3112d096-07b4-413f-9517-e6b2e7306818.png">
