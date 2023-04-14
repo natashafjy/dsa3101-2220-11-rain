@@ -84,20 +84,21 @@ def get_specific_routine(connection, username, routine_id):
 
 @app.route("/api/login", methods=["GET"])
 def login():
-    exist_in_db = True
+    exist_in_db = False
     password_match = False
 
     # Assumes data comes in as a get request in the arguments
     username, password_input = request.args.get('username'), request.args.get('password')
     db = establish_db_connection()
     all_rows = get_user_password(db, username)
-    if len(all_rows) == 0:
-        exist_in_db = False
+    if len(all_rows) > 0:
+        exist_in_db = True
 
     #assumes unique (username)
     password_set = set(map(lambda x: x[-1], all_rows))
     cprint(f'password_set is {password_set}')
-    if password_input in password_set:
+    cprint((username,password_input))
+    if exist_in_db and (password_input in password_set):
         password_match = True
 
     response = {"exist":exist_in_db, "match": password_match}
