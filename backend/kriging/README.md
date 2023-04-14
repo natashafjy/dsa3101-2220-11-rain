@@ -1,1 +1,1 @@
-This folder contains code for kriging.
+This folder contains the exploratory code for kriging. The Jupyter Notebooks include different visualisations, including heatmaps and scatterplots. Maps were also generated using the `Folium` package, but the notebooks must be downloaded (or trusted) to view the maps.
