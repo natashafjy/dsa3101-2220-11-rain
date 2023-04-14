@@ -18,6 +18,9 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li>
+       <a href="#user-manual">User Manual</a>
+    </li>
   </ol>
 </details>
 
@@ -26,7 +29,7 @@
 ## About The Project :cloud_with_rain:
 
 DryRun is a web application created using Dash, Flask, and mySQL database. 
-It is dedicated to provide **accurate** rainfall prediction at **any location** in Singapore **up to 30 minutes in advance** for outdoor runners with fixed running routines. The application is able to memorise the running routine and give suggestion on whether to continue the run based on precipitation predicted and the according wetness level of the ground.
+It is provides **accurate** rainfall predictions at **any location** in Singapore **up to 30 minutes in advance** for outdoor runners with fixed running routines. The application is able to store the running routines and give suggestions on whether to continue the run based on the predicted amount of rainfall and the corresponding wetness level of the ground.
 
 
 Hope you will enjoy our app and have a Dry Run!
@@ -64,9 +67,9 @@ To get a local copy up and running follow these simple steps.
    docker compose up -d
    ```
 
-### User Manual
+### User Manual :page_facing_up:
 <details>
-<summary>Click me for detailed guide with images</summary>
+<summary>Click me for a detailed guide with images</summary>
   
   
 1. Sign up
@@ -105,7 +108,7 @@ To get a local copy up and running follow these simple steps.
 
   
   
-  With that, we hope thst you will enjoy our application! We are also happy to hear the feedbacks so feel free to reach out to us if you have any!
+  With that, we hope that you will enjoy our application! We are also happy to hear any feedback so feel free to reach out to us if you have any!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
