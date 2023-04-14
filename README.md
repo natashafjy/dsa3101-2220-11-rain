@@ -1,7 +1,7 @@
+<a name="readme-top"></a>
+
 # dsa3101-2220-11-rain  :umbrella:
 
-
-<a name="readme-top"></a>
 
 
 <!-- TABLE OF CONTENTS -->
@@ -21,7 +21,6 @@
   </ol>
 </details>
 
-</br>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
