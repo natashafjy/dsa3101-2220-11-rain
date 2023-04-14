@@ -157,10 +157,10 @@ def extract_raw_wind_speed(save_data = True):
     return wind_spd_data
 
 
-def extract_and_combine_data(save_model=True):
+def extract_and_combine_data(save_data=True):
     """
     Args:
-        save_model (default_value = True): saves data in a csv file
+        save_data (default_value = True): saves data in a csv file
     Returns:
         dataframe with columns: "date", "time", "station", "value", "humidity", "temperature",	"wind_direction", "wind_speed"
     """
@@ -224,7 +224,11 @@ def extract_and_combine_data(save_model=True):
     
     all_data = all_data[["date", "time", "station", "value", "humidity", "temperature",	"wind_direction", "wind_speed"]]
 
-    if save_model is True:
+    if save_data is True:
         all_data.to_csv("all_data.csv")
 
     return all_data
+
+
+if __name__ == "__main__":
+    extract_and_combine_data()
