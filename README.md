@@ -66,7 +66,7 @@ To get a local copy up and running follow these simple steps.
 
 ### User Manual
 <details>
-<summary>Click me to expand</summary>
+<summary>Click me for detailed guide with images</summary>
 1. Sign up
 
     <img width="1512" alt="Screenshot 2023-04-14 at 10 48 20 PM" src="https://user-images.githubusercontent.com/77218431/232077649-3112d096-07b4-413f-9517-e6b2e7306818.png">
@@ -100,8 +100,10 @@ To get a local copy up and running follow these simple steps.
     * As the prediction is accurate to every ooint, you may click select "start point" or "end point" to view the predictions for each point. The plots in the sidebar are showing the precipitation and wetness level across the next 30 minutes window, with weather icons updating accordingly. The overall suggestion for this route is also given. 
     * There are 2 tabs in the map, the first one displaying the route of choice, while the second one is a dynamic rainfall map. You may click the start button at the bottom to view the animation. 
     <img width="1512" alt="Screenshot 2023-04-14 at 11 04 13 PM" src="https://user-images.githubusercontent.com/77218431/232081357-de247f0e-8e0a-404a-80a0-82af7a64fac9.png">
-<details>
-    With that, we hope thst you will enjoy our application! We are also happy to hear the feedbacks so feel free to reach out to us if you have any!
+
+  
+  
+  With that, we hope thst you will enjoy our application! We are also happy to hear the feedbacks so feel free to reach out to us if you have any!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
