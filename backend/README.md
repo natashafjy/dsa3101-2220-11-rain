@@ -36,7 +36,7 @@ Making use of the models and kriging, our prediction workflow is as follows:
 
 1. The user selects a routine on the frontend's webpage, which returns the (latitude, longitudes) pairs for the start and end points of the user's chosen routine.
 
-2. The most recent rainfall data will from data.gov.sg’s API, and converted into a format that can be passed into our model.
+2. The most recent rainfall data will be retrieved from data.gov.sg’s API, and converted into a format that can be passed into our model.
 
 3. Our trained model predicts rainfall amounts at the weather stations throughout Singapore.
 
