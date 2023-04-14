@@ -51,3 +51,4 @@ pykrige==1.7.0
 xgboost==1.7.3
 scipy==1.10.0
 scikit-learn==1.2.2
+pytest==7.3.0
