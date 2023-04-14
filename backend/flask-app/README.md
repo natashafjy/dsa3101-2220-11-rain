@@ -1,4 +1,4 @@
-## Used to caclulate predicitons in the `backend.py`
+## Used to caclulate predictions in the `backend.py`
 
 - `get_data_from_api.py`
 - `get_next_30_min_pred.py`
@@ -10,9 +10,13 @@
 - contains `csv` files and `txt` files used to calculate predictions
 
 
-## Unit Testing
+## Unit Testing Files
 
 - `test_flask-app.py`
 - `test_get_from_api.py`
 - `test_model_predictions.py`
 
+## Files for Dockerizing
+- `Dockerfile`
+- `docker-compose.yml`
+- `requirements.txt`
