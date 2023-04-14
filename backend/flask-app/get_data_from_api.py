@@ -215,6 +215,21 @@ for win in readings:
 data_pivot = data.pivot(index=["date","time"], columns="station", values="value")
 
 def get_updated_data():
+    """
+    This function returns the updated data containing the rainfall predictions at the 2 most recent timestamps 
+    which were not available during retrieval of rainfall data from API.
+
+    Returns:
+        pandas Dataframe containing the most updated data, with columns date, time,	station, value
+    """
     return data
+
 def get_updated_data_pivot():
+    """
+    This function returns the updated data in pivoted form containing the rainfall predictions at the 2 most recent timestamps 
+    which were not available during retrieval of rainfall data from API.
+
+    Returns:
+        pandas Dataframe containing the most updated data, with each station as its own column and date, time as rows
+    """
     return data_pivot
