@@ -1,0 +1,281 @@
+import backend
+import pytest
+import sqlite3
+
+@pytest.fixture
+def conn():
+    """
+    pytest fixture to create a connection to sqlite3 database
+    to mock a database connection
+    """
+    con = sqlite3.connect(":memory:")
+    yield con
+
+def test_login_page_empty_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/api/login' page is requested (GET) with no parameters
+    THEN check that the response is valid but both "exist" 
+         and "match" parameters are false
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    with flask_app.test_client() as test_client:
+        response = test_client.get("/api/login")
+        assert response.status_code == 200
+        assert response.json.get("exist") == False
+        assert response.json.get("match") == False
+
+
+def test_login_page_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/login' page
+    THEN check that the response is 405, method not allowed
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    with flask_app.test_client() as test_client:
+        response = test_client.post("/api/login")
+        assert response.status_code == 405
+
+
+def test_login_page_get_existing(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/api/login' page is requested (GET) with existing username
+    THEN check that the response is valid but both "exist" 
+         and "match" parameters are false
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [("user1","passw1")])
+    with flask_app.test_client() as test_client:
+        response = test_client.get("/api/login?username=user1&password=passw1")
+        assert response.status_code == 200
+        assert response.json.get("exist") == True
+        assert response.json.get("match") == True
+        response = test_client.get("/api/login?username=user1&password=wrongPW")
+        assert response.status_code == 200
+        assert response.json.get("exist") == True
+        assert response.json.get("match") == False
+
+def test_login_page_get_nonexistent(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the '/api/login' page is requested (GET) with nonexistent username
+    THEN check that the response is valid but both "exist" 
+         and "match" parameters are false
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    with flask_app.test_client() as test_client:
+        response = test_client.get("/api/login?username=user2&password=pw1")
+        assert response.status_code == 200
+        assert response.json.get("exist") == False
+        assert response.json.get("match") == False
+
+
+def test_signup_page_empty_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/signup' page with no parameters
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    mocker.patch("backend.add_user_to_db", return_value = None)
+    with flask_app.test_client() as test_client:
+        response = test_client.post("/api/signup")
+        assert response.status_code == 200
+        assert response.json.get("exist") == False
+
+def test_signup_page_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/signup' page
+    THEN check that the response is 405, method not allowed
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    mocker.patch("backend.add_user_to_db", return_value = None)
+    with flask_app.test_client() as test_client:
+        response = test_client.get("/api/signup")
+        assert response.status_code == 405
+
+def test_signup_page_post_nonexistant(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/signup' page with 
+         a new "username" and "password"
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [])
+    mocker.patch("backend.add_user_to_db", return_value = None)
+    with flask_app.test_client() as test_client:
+        response = test_client.post("/api/signup?username=user1&password=passw1")
+        assert response.status_code == 200
+        assert response.json.get("exist") == False
+
+def test_signup_page_post_existing(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/signup' page 
+         with an existing "username" and "password"
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_password", return_value = [("user1","passw1")])
+    mocker.patch("backend.add_user_to_db", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/signup?username=user1&password=pw123")
+        assert response.status_code == 200
+        assert response.json.get("exist") == True
+
+
+def test_gallery_page_empty_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/gallery' page 
+         with no parameters
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_routines", return_value = [])
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/gallery")
+        assert response.status_code == 200
+        assert response.json.get("routine_num") == 0
+        assert len(response.json.get("routine")) == 0
+
+def test_gallery_page_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/gallery' page 
+    THEN check that the response is 405, method not allowed
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_routines", return_value = [("user1","passw1")])
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/gallery")
+        assert response.status_code == 405
+
+
+def test_gallery_page_get_no_routines(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/gallery' page 
+         for a user with no routines
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_routines", return_value = [])
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/gallery?username=user1")
+        assert response.status_code == 200
+        assert response.json.get("routine_num") == 0
+        assert len(response.json.get("routine")) == 0
+
+def test_gallery_page_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/gallery' page 
+         for a user with existing routines
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    #when user has 1 routine
+    mocker.patch("backend.get_user_routines", 
+                 return_value = [("NUS","NTU","10:55","13:10", "Mon Tues Wed"),])
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/gallery?username=user1")
+        assert response.status_code == 200
+        assert response.json.get("routine_num") == 1
+        assert len(response.json.get("routine")) == 1
+        routine1 = response.json.get("routine").get("routine1")
+        assert routine1.get("start_point") == "NUS"
+        assert routine1.get("end_point") == "NTU"
+        assert routine1.get("start_time_value") == "10:55" 
+        assert routine1.get("end_time_value") == "13:10"
+        assert routine1.get("days_of_week") == "Mon Tues Wed"
+    #when user has 2 routines
+    mocker.patch("backend.get_user_routines", 
+                 return_value = [("NUS","NTU","10:55","13:10", "Mon Tues Wed"),
+                                 ("NTU","NUS","11:55","15:10", "Thu Fri Sat")])
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/gallery?username=user1")
+        assert response.status_code == 200
+        assert response.json.get("routine_num") == 2
+        assert len(response.json.get("routine")) == 2
+        routine1 = response.json.get("routine").get("routine1")
+        assert routine1.get("start_point") == "NUS"
+        assert routine1.get("end_point") == "NTU"
+        assert routine1.get("start_time_value") == "10:55" 
+        assert routine1.get("end_time_value") == "13:10"
+        assert routine1.get("days_of_week") == "Mon Tues Wed"
+        routine2 = response.json.get("routine").get("routine2")
+        assert routine2.get("start_point") == "NTU"
+        assert routine2.get("end_point") == "NUS"
+        assert routine2.get("start_time_value") == "11:55" 
+        assert routine2.get("end_time_value") == "15:10"
+        assert routine2.get("days_of_week") == "Thu Fri Sat"
+
+
+def test_add_routine_empty_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/add_routine' page 
+         with no parameters
+    THEN check that the response is 500, internal server error
+         as the parameters should not be empty
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/add_routine")
+        assert response.status_code == 500
+
+def test_add_routine_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/add_routine' page 
+    THEN check that the response is 405, method not allowed
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/add_routine")
+        assert response.status_code == 405
+
+def test_add_routine_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/add_routine' page 
+         with valid username and all the required parameters
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_routines", return_value = [])
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/add_routine?username=user1&\
+                                    start_address=NUS&start_long=1.666&\
+                                    start_lat=1.888&end_address=NTU&\
+                                    end_long=2.666&end_lat=2.888&start_time=10:50&\
+                                    end_time=13:10&days_of_week=Mon Tues Wed")
+        assert response.status_code == 200
