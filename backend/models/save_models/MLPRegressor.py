@@ -98,30 +98,32 @@ def save(model, filename):
     pickle.dump(model, open(filename, "wb"))
 
 
-# Train Test split
-# Train 80% - Test 20%
-# Total number of rows = 25 million
+def main():
+    # Train Test split
+    # Train 80% - Test 20%
+    # Total number of rows = 25 million
 
-test_index = range(10_000_000,15_000_000+1)
+    test_index = range(10_000_000,15_000_000+1)
 
-# Generate iterator for train dataset
-chunksize = 1_000_000
-sliding_window_data = pd.read_csv("sliding_window_data.csv", chunksize=chunksize, iterator=True, skiprows=test_index)
+    # Generate iterator for train dataset
+    chunksize = 1_000_000
+    sliding_window_data = pd.read_csv("sliding_window_data.csv", chunksize=chunksize, iterator=True, skiprows=test_index)
 
-# Create test dataset
-test_dataset = pd.read_csv("sliding_window_data.csv", header=0, nrows=5_000_000, skiprows=range(1,10_000_000))
-test_dataset = preprocess(test_dataset)
+    # Create test dataset
+    test_dataset = pd.read_csv("sliding_window_data.csv", header=0, nrows=5_000_000, skiprows=range(1,10_000_000))
+    test_dataset = preprocess(test_dataset)
 
-# Train MLPRegressor model
-mlpregressor_model = train(sliding_window_data)
+    # Train MLPRegressor model
+    mlpregressor_model = train(sliding_window_data)
 
-# Evaluate model performance and print some statistics
-prediction = mlpregressor_model.predict(test_dataset.iloc[:,1:])
-evaluate(prediction,test_dataset.iloc[:,0])
+    # Evaluate model performance and print some statistics
+    prediction = mlpregressor_model.predict(test_dataset.iloc[:,1:])
+    evaluate(prediction,test_dataset.iloc[:,0])
 
-# Save model into MLPRegressor.pkl in current directory
-filename = "MLPRegressor.pkl"
-save(mlpregressor_model, filename)
+    # Save model into MLPRegressor.pkl in current directory
+    filename = "MLPRegressor.pkl"
+    save(mlpregressor_model, filename)
 
 
-
+if __name__ == "__main__":
+    main()
