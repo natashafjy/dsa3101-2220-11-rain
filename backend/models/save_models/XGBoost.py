@@ -103,28 +103,30 @@ def save(model, filename):
     pickle.dump(model, open(filename, "wb"))
 
 
-# Import subset (2 million rows) of dataset
-# Pre-process data
-sliding_window_data = pd.read_csv('sliding_window_data.csv', nrows=2000000)
-cleaned_data = preprocess(sliding_window_data)
-X_all = cleaned_data.iloc[:,1:]
-y_all = cleaned_data.iloc[:,0]
+def main():
+    # Import subset (2 million rows) of dataset
+    # Pre-process data
+    sliding_window_data = pd.read_csv('sliding_window_data.csv', nrows=2000000)
+    cleaned_data = preprocess(sliding_window_data)
+    X_all = cleaned_data.iloc[:,1:]
+    y_all = cleaned_data.iloc[:,0]
 
-# Train-Test split
-# Train 80% - Test 20%
-# Total number of rows = 2 million
-X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.2, random_state=seed)
+    # Train-Test split
+    # Train 80% - Test 20%
+    # Total number of rows = 2 million
+    X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.2, random_state=seed)
 
-# Train XGBoost model
-xgboost_model = train(X_train, y_train)
+    # Train XGBoost model
+    xgboost_model = train(X_train, y_train)
 
-# Evaluate model performance and print some statistics
-prediction = xgboost_model.predict(X_test)
-evaluate(prediction, y_test)
+    # Evaluate model performance and print some statistics
+    prediction = xgboost_model.predict(X_test)
+    evaluate(prediction, y_test)
 
-# Save model into XGBoost.pkl in current directory
-filename = "XGBoost.pkl"
-save(xgboost_model, filename)
+    # Save model into XGBoost.pkl in current directory
+    filename = "XGBoost.pkl"
+    save(xgboost_model, filename)
 
-
+if __name__ == "__main__":
+    main()
 
