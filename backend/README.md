@@ -1,5 +1,6 @@
 This folder contains the following subfolders relating to the backend:
 
+```bash
 dsa3101-2220-11-rain
 │       
 └───backend
@@ -23,3 +24,4 @@ dsa3101-2220-11-rain
         ├───exploratory_notebooks
         ├───save_models
         └───tests
+```
