@@ -5,7 +5,7 @@ import xgboost as xgb
 
 # to set working directory to dsa3101-2220-11-rain/backend/flask-app
 import os
-os.chdir("backend/flask-app")
+os.chdir("./backend/flask-app")
 
 from get_data_from_api import *
 from get_next_30_min_pred import *
