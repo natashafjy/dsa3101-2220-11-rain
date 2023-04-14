@@ -203,7 +203,7 @@ def test_gallery_page_get(mocker,conn):
     """
     GIVEN a Flask application configured for testing
     WHEN a GET request is made to '/api/gallery' page 
-         fo a user with existing routines
+         for a user with existing routines
     THEN check that the response is valid
     """
     flask_app = backend.app
@@ -243,3 +243,51 @@ def test_gallery_page_get(mocker,conn):
         assert routine2.get("start_time_value") == "11:55" 
         assert routine2.get("end_time_value") == "15:10"
         assert routine2.get("days_of_week") == "Thu Fri Sat"
+
+
+def test_add_routine_empty_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/add_routine' page 
+         with no parameters
+    THEN check that the response is 500, internal server error
+         as the parameters should not be empty
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/add_routine")
+        assert response.status_code == 500
+
+def test_add_routine_get(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a GET request is made to '/api/add_routine' page 
+    THEN check that the response is 405, method not allowed
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.get("/api/add_routine")
+        assert response.status_code == 405
+
+def test_add_routine_post(mocker,conn):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN a POST request is made to '/api/add_routine' page 
+         with valid username and all the required parameters
+    THEN check that the response is valid
+    """
+    flask_app = backend.app
+    mocker.patch("backend.establish_db_connection", return_value = conn)
+    mocker.patch("backend.get_user_routines", return_value = [])
+    mocker.patch("backend.add_user_routine", return_value = None)
+    with flask_app.test_client() as test_client:  
+        response = test_client.post("/api/add_routine?username=user1&\
+                                    start_address=NUS&start_long=1.666&\
+                                    start_lat=1.888&end_address=NTU&\
+                                    end_long=2.666&end_lat=2.888&start_time=10:50&\
+                                    end_time=13:10&days_of_week=Mon Tues Wed")
+        assert response.status_code == 200
