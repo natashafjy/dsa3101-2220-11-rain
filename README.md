@@ -23,7 +23,7 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## About The Project :cloud_with_rain:
 
 Amy is a fitness fanatic, who lives in the Queenstown area. Almost every evening, she tries to go for a run or a bike ride along Alexandra Canal Park. Her exercise routine is an intense 30 minutes each time, starting at 6pm every day. On days when it is raining, she skips her exercise. If she misses that window to train, she can't go later, because she must take a call with her US team at night. It's ok to miss a training session - that's ok to her, but it is 
 -  frustrating that she is not given a good indication of the path of the storm.
@@ -43,7 +43,7 @@ The challenge in this problem is to forecast rainfall at all locations (i.e give
 
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Getting Started :droplet:
 
 To get a local copy up and running follow these simple steps.
 
