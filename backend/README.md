@@ -55,6 +55,27 @@ Making use of the models and kriging, our prediction workflow is as follows:
 
 ---
 
+## To run backend server 
+
+1. Change directory
+```bash
+cd backend/flask-app
+```
+
+2. Activate virtual environment if necessary, and install requirements
+```bash
+pip install -r requirements.txt
+```
+
+3. Run
+```bash
+docker compose up -d
+```
+The flask app will be running at 127.0.0.1:5000
+
+
+---
+
 ## Unit Testing
 
 To do unit testing for models:
