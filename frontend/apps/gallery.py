@@ -21,7 +21,6 @@ load_figure_template('MORPH')
 default_map_url = "https://www.google.com/maps/embed/v1/place?key=AIzaSyCMhkDTjNOXAlgNL3FijjPIw6c7VGvI0f8&q=Singapore"
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
-df_path = os.path.join(APP_PATH, os.path.join("../", "data.csv"))
 
 def generate_routine_options(routine_dict):
     options = []
@@ -32,10 +31,6 @@ def generate_routine_options(routine_dict):
         options.append(option)
     return options
 
-def update_df():
-    new_df = pd.read_csv(df_path)
-    return new_df
-df = update_df()
 
 SIDEBAR_STYLE = {
     "position": "fixed",

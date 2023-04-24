@@ -18,7 +18,6 @@ COPY 5-nearest-stations.txt 5-nearest-stations.txt
 COPY get_data_from_api.py get_data_from_api.py
 COPY get_next_30_min_pred.py get_next_30_min_pred.py
 COPY xgboost_model.json xgboost_model.json
-COPY data.csv data.csv
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \

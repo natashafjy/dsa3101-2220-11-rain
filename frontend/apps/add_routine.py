@@ -27,11 +27,6 @@ load_figure_template('MORPH')
 
 # setting up dataframe
 APP_PATH = str(pathlib.Path(__file__).parent.resolve())
-df_path = os.path.join(APP_PATH, os.path.join("../", "data.csv"))
-def update_df():
-    new_df = pd.read_csv(df_path)
-    return new_df
-df = update_df()
 
 # tokens
 mapbox_token = 'pk.eyJ1IjoiamVzc2llMTExMTIzMzMiLCJhIjoiY2xmcThma3llMWQyYTNxcXpjazk1cXp5diJ9.Ecuy-mNsqBbFeqgP9pWbcg'
